@@ -20,7 +20,7 @@ import User  from   '../models/User.js'
         user:fmt(user)
       }
    }
-    export  const login = asnyc({email,password})=>{
+    export  const login = asnyc({email,password}) => {
          const  user =  await  User.findOne({
             email, password
          }).select('+password')
