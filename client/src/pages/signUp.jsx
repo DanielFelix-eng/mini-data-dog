@@ -1,5 +1,11 @@
 import React, { useMemo, useState } from 'react'
 
+ import {  signupStart,
+  signupSuccess,
+  signupFailure,
+ } from '../slices/authSlice.js'
+import { useDispatch}  from 'react-redux'
+
 export default function SignupPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -9,6 +15,8 @@ export default function SignupPage() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+   const dispatch =   useDispatch()
+    
 
   const canSubmit = useMemo(() => {
     return (
@@ -18,7 +26,7 @@ export default function SignupPage() {
       password === confirmPassword
     )
   }, [name, email, password, confirmPassword])
-
+dispatch(signupStart())
   const onSubmit = async (e) => {
     e.preventDefault()
     setError('')
@@ -47,8 +55,10 @@ export default function SignupPage() {
       if (token) localStorage.setItem('token', token)
 
       setSuccess('Account created. You can continue to login.')
+       dispatch(signupSuccess({user:data?.data?.user, token}))
     } catch {
       setError('Network error. Please try again.')
+       dispatch(signupFailure(error?.message || 'Network error'))
     } finally {
       setSubmitting(false)
     }
