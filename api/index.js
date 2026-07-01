@@ -9,13 +9,19 @@ const app =  express()
  app.get('/', (req, res )=> {
      res.send('API is running')
  })
- const PORT =   process.env.PORT || 3000 
-  const start   =  async  ()=>{
-     await connectedDB()
-      app.listen(PORT, ()=>{
-         console.log('Server is running on port 3000 ')
-      })
-  }
+import authRoute from './routes/authRoute.js'
+
+app.use('/api', authRoute)
+
+const PORT = process.env.PORT || 3000
+
+const start = async () => {
+  await connectedDB()
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`)
+  })
+}
 
 start()
+
 
