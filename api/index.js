@@ -1,14 +1,23 @@
-import express  from 'express' 
- import { connectedDB } from './db/db.js'
-import dotenv from  'dotenv'
+import express from 'express'
+import { connectedDB } from './db/db.js'
+import dotenv from 'dotenv'
+import cors from 'cors'
+import cookieParser from 'cookie-parser'
 dotenv.config()
-   
-const app =  express() 
 
- app.use(express.json()) 
+const app = express()
+
+app.use(express.json())
+app.use(cookieParser())
  app.get('/', (req, res )=> {
      res.send('API is running')
  })
+  app.use(cors({
+  origin: process.env.NODE_ENV === 'production'
+    ? process.env.CLIENT_URL
+    : 'http://localhost:5173',
+  credentials: true
+}))
 import authRoute from './routes/authRoute.js'
 
 app.use('/api', authRoute)

@@ -22,6 +22,35 @@ const userSchema = new mongoose.Schema(
       required: [true, 'Password is required'],
       select: false,
     },
+    // Email verification
+    verificationToken: {
+      type: String,
+    },
+    verificationTokenExpire: {
+      type: Date,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    // Google auth / profile
+    googleId: {
+      type: String,
+    },
+    profilePicture: {
+      type: String,
+    },
+    // Password reset
+    resetPasswordToken: {
+      type: String,
+    },
+    resetPasswordExpire: {
+      type: Date,
+    },
+    // Misc
+    lastlogin: {
+      type: Date,
+    },
   },
   { timestamps: true }
 );

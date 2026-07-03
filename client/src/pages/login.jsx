@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Oauth from '../components/googleAuth'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -28,6 +29,7 @@ export default function LoginPage() {
       const res = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ email, password }),
       })
 
@@ -37,7 +39,7 @@ export default function LoginPage() {
         return
       }
 
-      const token = data?.data?.token
+      const token = data?.token
       if (token) localStorage.setItem('token', token)
 
       setSuccess('Welcome back. Redirecting to your dashboard...')
@@ -104,7 +106,8 @@ export default function LoginPage() {
               className="mt-2 w-full rounded-xl bg-gradient-to-r from-cyan-500/90 via-emerald-400/90 to-lime-500/90 py-3 font-semibold text-[#062012] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-80"
             >
               {submitting ? 'Signing in...' : 'Login'}
-            </button>
+            </button> 
+            <Oauth />
 
             <div
               className="mt-1 cursor-pointer select-none text-right text-sm text-[var(--text-h)]"

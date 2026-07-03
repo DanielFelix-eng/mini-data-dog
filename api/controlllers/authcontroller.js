@@ -1,54 +1,359 @@
-import { signUp as signUpService, login as loginService, updateProfile as updateProfileService, changePassword as changePasswordService, deleteAccount as deleteAccountService } from '../services/authservice.js'
-import { successResponse } from '../utils/response.js'
+import bcrypt from 'bcryptjs'
+import crypto from 'crypto'
+import User from '../models/User.js'
+import { generateToken } from '../utils/setCookies.js'
+import { sendVerificationEmail } from '../resend/resend.js'
+import { sendWelcomeEmail, sendResetPasswordEmail, resetPasswordEmail } from '../resend/email.js'
+export const signup = async (req, res) => {
+  const { email, password, name } = req.body;
 
-export const signUp = async (req, res, next) => {
   try {
-    const data = await signUpService(req.body)
-    successResponse(res, data, 'Account created')
+    // ✅ return instead of throw
+    if (!email || !password || !name) {
+      return res.status(400).json({ message: 'Please provide all fields' });
+    }
+
+    const userAlreadyExists = await User.findOne({ email });
+    if (userAlreadyExists) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationToken = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
+    
+
+    const user = new User({
+      email,
+      password: hashedPassword,
+      name,
+      verificationToken,
+      verificationTokenExpire: new Date(Date.now() + 3600000),
+    });
+
+    await user.save();
+    const token = generateToken(res, user._id);
+
+    // ✅ Send email BEFORE responding, wrapped in try/catch so it
+    //    never bubbles up to the outer catch
+    try {
+      await sendVerificationEmail(user.email, verificationToken);
+    } catch (emailError) {
+      console.error('Failed to send verification email:', emailError);
+    }
+
+    // ✅ return so nothing runs after this
+    return res.status(201).json({
+      success: true,
+      message: 'User created successfully',
+      token,
+      user: { ...user._doc, password: undefined },
+    });
+
   } catch (error) {
-    next(error)
+    return res.status(400).json({ message: error.message });
   }
-}
+};
+ //verify email logic
+  export const verifyEmail = async (req, res) => {
+    try {
+      let { code } = req.body;
+      code = String(code || '').trim();
+      console.log('verifyEmail called', { userId: req.userId, code });
 
-export const login = async (req, res, next) => {
-  try {
-    const data = await loginService(req.body)
-    successResponse(res, data, 'logged in')
+      const user = await User.findOne({
+        verificationToken: code,
+        verificationTokenExpire: { $gt: Date.now() },
+      });
+
+    if (!user) {
+      console.log('verifyEmail: no matching user for code', code);
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired verification code',
+      });
+    }
+
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpire = undefined;
+    await user.save();
+
+    await sendWelcomeEmail(user.name, user.email, 'https://yourapp.com/dashboard');
+
+    return res.status(200).json({
+      success: true,
+      message: 'Email verified successfully',
+      user: { ...user._doc, password: undefined },
+    });
   } catch (error) {
-    next(error)
+    return res.status(500).json({ success: false, message: error.message });
   }
-}
+};
 
-export const getMe = (req, res) => successResponse(res, req.user)
-
-export const updateProfile = async (req, res, next) => {
+export const resendVerification = async (req, res) => {
   try {
-    const user = await updateProfileService(req.user._id, req.body)
-    successResponse(res, user, 'Profile updated')
-  } catch (error) {
-    next(error)
-  }
-}
+    console.log('resendVerification called', { userId: req.userId });
+    const user = await User.findById(req.userId)
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' })
+    }
 
-export const changePassword = async (req, res, next) => {
-  try {
-    await changePasswordService({
-      userId: req.user._id,
-      currentPassword: req.body.currentPassword,
-      newPassword: req.body.newPassword,
+    if (user.isVerified) {
+      return res.status(400).json({ success: false, message: 'Email already verified' })
+    }
+
+    const verificationToken = Math.floor(100000 + Math.random() * 900000).toString()
+    user.verificationToken = verificationToken
+    user.verificationTokenExpire = new Date(Date.now() + 3600000)
+    await user.save()
+
+    await sendVerificationEmail(user.email, verificationToken)
+
+    return res.status(200).json({
+      success: true,
+      message: 'Verification email resent successfully',
     })
-    successResponse(res, null, 'updated')
   } catch (error) {
-    next(error)
+    return res.status(500).json({ success: false, message: error.message })
+  }
+};
+ //logout
+  export const logout = ( req,res) => {
+     res.clearCookie('token')
+    
+    res.status(200).json({ success: true, message: 'Logged out successfully' });
+    } 
+     
+    //login logic 
+     export const  login =  async (req,res)=>{ 
+      try{ 
+         const  {email , password} = req.body ;
+          if(!email || !password){
+            return res.status(400).json({ message: 'Please provide all fields' });
+          }
+         const user = await User.findOne({ email }).select('+password');
+         if(!user){
+            return res.status(400).json({ message: 'Invalid email or password' });
+         }
+         const isMatch = await bcrypt.compare(password, user.password);
+         if(!isMatch){
+            return res.status(400).json({ message: 'Invalid email or password' });
+         }
+         const token = generateToken(res, user._id)
+         user.lastlogin  =  new Date() ; 
+          await user.save() ;
+         return res.status(201).json({
+            success: true,
+            message: 'Logged in successfully',
+            token,
+            user: { ...user._doc, password: undefined },
+         });
+     } catch (error) {
+        return res.status(500).json({ message: error.message });
+     } }
+       //forgot password logic 
+        export const  forgotPassword = async (req,res) => {  
+           const { email } = req.body ;
+          try {
+             const user =  await User.findOne({
+               email 
+             })  
+             if(!user ) {
+               return res.json({ success: false , message : 'User not found' }) ;
+             }
+              const token = crypto.randomBytes(20).toString('hex') ;
+               const resetTokenExpires  =   Date.now() + 3600000 ;
+                user.resetPasswordToken = token ;
+                 user.resetPasswordExpire = resetTokenExpires ;
+                  await user.save() ;
+                   // send email
+                   await sendResetPasswordEmail(user.name, user.email, `http://localhost:5173/resetPassword?token=${token}`);
+                   return res.status(200).json({ success: true, message: 'Password reset email sent' });
+              
+          } catch (error) {
+             return res.status(500).json({ success: false, message: error.message });
+          }
+        }
+         //reset password logic 
+          export const resetPassword =  async (req,res) =>{ 
+            try {
+               const  { token} = req.params ; 
+                const  {password} =  req.body
+   const user = await User.findOne({
+     resetPasswordToken:token, 
+     resetPasswordExpire: { $gt: Date.now() } ,
+
+   })
+    if(!user){
+       return res.status(400).json({ success: false, message: 'Invalid or expired token' }); 
+
+    }
+     //update password 
+      const hashedPassword = await bcrypt.hash(password, 10) ;
+       user.password = hashedPassword
+        user.resetPasswordToken = undefined ;
+          user.resetPasswordExpire = undefined ;
+        await user.save()
+         await resetPasswordEmail(user.email) ; 
+         res.status(200).json({ success: true, message: 'Password reset successful' });
+     
+               }catch(error){
+                  return res.status(500).json({ success: false, message: error.message });
+               }
+             
+          }
+           //check auth 
+            export  const checkauth =  async (req, res) => { 
+              try {
+                const user = await User.findById(req.userId)
+
+               if(!user) { 
+                  return res.status(404).json({ success: false, message: 'User not found' })
+
+               }
+                res.status(200).json({success:true ,user }) 
+             
+           } catch (error) {
+             console.log("Error in checking authentication ") 
+
+                return res.status(500).json({ success: false, message: error.message })
+           }
+
+            }           
+              // google auth 
+export const googleAuth = async (req, res) => {
+  try {
+    const { email, name, uid, photoURL } = req.body
+
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email is required' })
+    }
+
+    let user = await User.findOne({ email })
+
+    if (!user) {
+      // Create new user if doesn't exist
+      user = new User({
+        email,
+        name: name || 'User',
+        googleId: uid,
+        profilePicture: photoURL,
+        isVerified: true, // Google users are pre-verified
+        password: undefined,
+      })
+      await user.save()
+    } else {
+      // Update existing user with Google ID if not already set
+      if (!user.googleId) {
+        user.googleId = uid
+      }
+      user.lastlogin = new Date()
+      await user.save()
+    }
+
+    const token = generateToken(res, user._id)
+
+    return res.status(200).json({
+      success: true,
+      message: 'Google authentication successful',
+      token,
+      user: { ...user._doc, password: undefined },
+    })
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message })
   }
 }
 
-export const deleteAccount = async (req, res, next) => {
+// update profile
+export const updateProfile = async (req, res) => {
   try {
-    await deleteAccountService(req.user._id)
-    successResponse(res, null, 'Acccount deleted')
+    const { name, email, currentPassword, newPassword, profilePicture } = req.body
+    const userId = req.userId
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Unauthorized' })
+    }
+
+    const user = await User.findById(userId)
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' })
+    }
+
+    // Update name if provided
+    if (name && name.trim()) {
+      user.name = name.trim()
+    }
+
+    // Update email if provided and not already taken
+    if (email && email.trim()) {
+      const existingUser = await User.findOne({ email: email.trim(), _id: { $ne: userId } })
+      if (existingUser) {
+        return res.status(400).json({ success: false, message: 'Email already in use' })
+      }
+      user.email = email.trim()
+    }
+
+    // Update password if provided (requires current password)
+    if (newPassword) {
+      if (!currentPassword) {
+        return res.status(400).json({ success: false, message: 'Current password is required' })
+      }
+      const isMatch = await bcrypt.compare(currentPassword, user.password)
+      if (!isMatch) {
+        return res.status(400).json({ success: false, message: 'Current password is incorrect' })
+      }
+      user.password = await bcrypt.hash(newPassword, 10)
+    }
+
+    // Update profile picture if provided
+    if (profilePicture) {
+      user.profilePicture = profilePicture
+    }
+
+    await user.save()
+
+    return res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully',
+      user: { ...user._doc, password: undefined },
+    })
   } catch (error) {
-    next(error)
+    return res.status(500).json({ success: false, message: error.message })
+  }
+}
+
+// delete account
+export const deleteAccount = async (req, res) => {
+  try {
+    const userId = req.userId
+    const { password } = req.body
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Unauthorized' })
+    }
+
+    if (!password) {
+      return res.status(400).json({ success: false, message: 'Password is required to delete account' })
+    }
+
+    const user = await User.findById(userId)
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' })
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password)
+    if (!isMatch) {
+      return res.status(400).json({ success: false, message: 'Password is incorrect' })
+    }
+
+    await User.findByIdAndDelete(userId)
+    res.clearCookie('token')
+
+    return res.status(200).json({ success: true, message: 'Account deleted successfully' })
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message })
   }
 }
 
