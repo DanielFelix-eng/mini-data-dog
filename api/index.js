@@ -5,7 +5,8 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import authRoute from './routes/authRoute.js'
 import ProjectRoute from './routes/projectRoutes.js'
- 
+import MonitorRoute from './routes/monitorRoutes.js'
+ import  { startMonitorJob } from './jobs/monitorjobs.js'
 dotenv.config()
 
 const app = express()
@@ -24,6 +25,8 @@ app.use(cookieParser())
 
 app.use('/api', authRoute)
 app.use('/api', ProjectRoute)
+app.use('/api', MonitorRoute)
+ 
 
 const PORT = process.env.PORT || 3000
 
@@ -33,6 +36,7 @@ const start = async () => {
     console.log(`Server is running on port ${PORT}`)
   })
 }
+ startMonitorJob()
 
 start()
 
