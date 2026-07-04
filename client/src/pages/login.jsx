@@ -43,7 +43,7 @@ export default function LoginPage() {
       if (token) localStorage.setItem('token', token)
 
       setSuccess('Welcome back. Redirecting to your dashboard...')
-      navigate('/dashboard')
+      navigate('/')
     } catch {
       setError('Network error. Please try again.')
     } finally {

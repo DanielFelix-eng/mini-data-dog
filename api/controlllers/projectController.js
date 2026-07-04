@@ -1,10 +1,11 @@
-import * as projectService from "../services/project.service.js";
+import * as projectService from "../services/proectService.js";
 
 export const createProject = async (req, res) => {
   try {
+    const ownerId = req.user?.id || req.userId;
     const project = await projectService.createProject({
       ...req.body,
-      owner: req.user.id,
+      owner: ownerId,
     });
 
     res.status(201).json(project);
@@ -17,9 +18,8 @@ export const createProject = async (req, res) => {
 
 export const getProjects = async (req, res) => {
   try {
-    const projects = await projectService.getProjects(
-      req.user.id
-    );
+    const ownerId = req.user?.id || req.userId;
+    const projects = await projectService.getProjects(ownerId);
 
     res.json(projects);
   } catch (error) {
@@ -31,9 +31,10 @@ export const getProjects = async (req, res) => {
 
 export const getProject = async (req, res) => {
   try {
+    const ownerId = req.user?.id || req.userId;
     const project = await projectService.getProjectById(
       req.params.id,
-      req.user.id
+      ownerId
     );
 
     if (!project) {
@@ -52,9 +53,10 @@ export const getProject = async (req, res) => {
 
 export const updateProject = async (req, res) => {
   try {
+    const ownerId = req.user?.id || req.userId;
     const project = await projectService.updateProject(
       req.params.id,
-      req.user.id,
+      ownerId,
       req.body
     );
 
@@ -74,9 +76,10 @@ export const updateProject = async (req, res) => {
 
 export const deleteProject = async (req, res) => {
   try {
+    const ownerId = req.user?.id || req.userId;
     const project = await projectService.deleteProject(
       req.params.id,
-      req.user.id
+      ownerId
     );
 
     if (!project) {

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Sidebar } from '../components/sideBar';
 import Navbar from '../components/navbar';
 import { Activity, AlertTriangle, CheckCircle2, Server, TrendingUp } from 'lucide-react';
@@ -16,6 +17,29 @@ const activityItems = [
 ];
 
 export default function Dashboard() {
+  const [projects, setProjects] = useState([]);
+
+  useEffect(() => {
+    const loadProjects = async () => {
+      try {
+        const response = await fetch('/api/projects', {
+          credentials: 'include',
+        });
+
+        if (!response.ok) {
+          throw new Error('Unable to load projects');
+        }
+
+        const data = await response.json();
+        setProjects(Array.isArray(data) ? data : []);
+      } catch {
+        setProjects([]);
+      }
+    };
+
+    loadProjects();
+  }, []);
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
       <div className="flex min-h-screen">
@@ -50,6 +74,41 @@ export default function Dashboard() {
                   <p className="mt-1 text-2xl font-semibold text-slate-900">{value}</p>
                 </div>
               ))}
+            </section>
+
+            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="mb-4 flex items-center justify-between">
+                <div>
+                  <h4 className="text-lg font-semibold text-slate-900">Recent Projects</h4>
+                  <p className="text-sm text-slate-500">Projects created from onboarding are shown here.</p>
+                </div>
+                <Link to="/projects" className="rounded-full bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700">
+                  Add project
+                </Link>
+              </div>
+
+              {projects.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
+                  No monitored projects yet. Start onboarding your first target.
+                </div>
+              ) : (
+                <div className="grid gap-3 md:grid-cols-2">
+                  {projects.map((project) => (
+                    <div key={project._id || project.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <h5 className="font-semibold text-slate-900">{project.name}</h5>
+                          <p className="mt-1 text-sm text-slate-600">{project.description}</p>
+                        </div>
+                        <span className="rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-medium text-indigo-700">
+                          {project.projectType || 'Website'}
+                        </span>
+                      </div>
+                      <p className="mt-3 text-sm text-slate-500">{project.websiteUrl || project.apiBaseUrl || 'Monitoring target pending'}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </section>
 
             <section className="grid gap-6 lg:grid-cols-[1.4fr_0.8fr]">

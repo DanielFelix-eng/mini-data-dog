@@ -3,6 +3,9 @@ import { connectedDB } from './db/db.js'
 import dotenv from 'dotenv'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
+import authRoute from './routes/authRoute.js'
+import ProjectRoute from './routes/projectRoutes.js'
+ 
 dotenv.config()
 
 const app = express()
@@ -18,9 +21,9 @@ app.use(cookieParser())
     : 'http://localhost:5173',
   credentials: true
 }))
-import authRoute from './routes/authRoute.js'
 
 app.use('/api', authRoute)
+app.use('/api', ProjectRoute)
 
 const PORT = process.env.PORT || 3000
 

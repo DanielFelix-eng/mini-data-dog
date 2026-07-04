@@ -1,11 +1,13 @@
 import { LayoutDashboard, FolderKanban, Server, ShieldAlert, Bell, FileText, BarChart3, Settings, HelpCircle } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 
 export function Sidebar() {
+  const location = useLocation();
   const navItems = [
-    { icon: LayoutDashboard, label: "Dashboard", active: true },
-    { icon: FolderKanban, label: "Projects" },
+    { icon: LayoutDashboard, label: "Dashboard", path: "/", active: location.pathname === "/" },
+    { icon: FolderKanban, label: "Projects", path: "/projects", active: location.pathname === "/projects" },
     { icon: Server, label: "Services" },
-    { icon: ShieldAlert, label: "Monitors" },
+    { icon: ShieldAlert, label: "Monitors", path: "/monitor" },
     { icon: Bell, label: "Alerts", badge: 3 },
     { icon: FileText, label: "Logs" },
     { icon: BarChart3, label: "Analytics" },
@@ -25,9 +27,10 @@ export function Sidebar() {
 
         {/* Nav */}
         <nav className="flex flex-col gap-1">
-          {navItems.map(({ icon: Icon, label, active, badge }) => (
-            <button
+          {navItems.map(({ icon: Icon, label, active, badge, path }) => (
+            <Link
               key={label}
+              to={path}
               className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-[14px] transition-colors ${
                 active
                   ? "bg-indigo-500/15 text-white"
@@ -43,7 +46,7 @@ export function Sidebar() {
                   {badge}
                 </span>
               )}
-            </button>
+            </Link>
           ))}
         </nav>
       </div>
