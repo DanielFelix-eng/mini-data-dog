@@ -60,7 +60,6 @@ export const signup = async (req, res) => {
     try {
       let { code } = req.body;
       code = String(code || '').trim();
-      console.log('verifyEmail called', { userId: req.userId, code });
 
       const user = await User.findOne({
         verificationToken: code,
@@ -332,7 +331,8 @@ export const deleteAccount = async (req, res) => {
 
     if (!userId) {
       return res.status(401).json({ success: false, message: 'Unauthorized' })
-    }
+    }  
+    
 
     if (!password) {
       return res.status(400).json({ success: false, message: 'Password is required to delete account' })
