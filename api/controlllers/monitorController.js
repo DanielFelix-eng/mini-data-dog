@@ -1,5 +1,5 @@
 
-import Monitor from "../models/Monitor.js";
+import Monitor from "../models/monitor.js";
 import Project from "../models/Project.js";
 
 // Create Monitor

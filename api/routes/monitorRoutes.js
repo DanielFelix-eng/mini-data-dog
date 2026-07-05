@@ -1,12 +1,15 @@
 import express from 'express';
 import Monitor from '../models/monitor.js';
+import Project from '../models/project.js';
 import { verifyToken } from '../middleware/verifyToken.js';
 
 const router = express.Router();
 
 router.get('/monitors', verifyToken, async (req, res) => {
   try {
-    const monitors = await Monitor.find({ createdBy: req.user?.id || req.userId }).sort({ createdAt: -1 });
+    const monitors = await Monitor.find({ createdBy: req.user?.id || req.userId })
+      .populate('project')
+      .sort({ createdAt: -1 });
     res.status(200).json(monitors);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -15,14 +18,23 @@ router.get('/monitors', verifyToken, async (req, res) => {
 
 router.post('/monitors', verifyToken, async (req, res) => {
   try {
-    const { project, type, interval, timeout, expectedStatus, enabled } = req.body;
+    const { project: projectId, type, interval, timeout, expectedStatus, enabled } = req.body;
 
-    if (!project) {
+    if (!projectId) {
       return res.status(400).json({ message: 'Project is required' });
     }
 
+    const project = await Project.findOne({
+      _id: projectId,
+      owner: req.user?.id || req.userId,
+    });
+
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found or not owned by you' });
+    }
+
     const monitor = await Monitor.create({
-      project,
+      project: projectId,
       createdBy: req.user?.id || req.userId,
       type: type || 'http',
       interval: interval || 5,
@@ -42,7 +54,7 @@ router.get('/monitors/:id', verifyToken, async (req, res) => {
     const monitor = await Monitor.findOne({
       _id: req.params.id,
       createdBy: req.user?.id || req.userId,
-    });
+    }).populate('project');
 
     if (!monitor) {
       return res.status(404).json({ message: 'Monitor not found' });

@@ -10,10 +10,4 @@ router.get("/projects/:id", verifyToken, projectController.getProject);
 router.put("/projects/:id", verifyToken, projectController.updateProject);
 router.delete("/projects/:id", verifyToken, projectController.deleteProject);
 
-router.post("/", verifyToken, projectController.createProject);
-router.get("/", verifyToken, projectController.getProjects);
-router.get("/:id", verifyToken, projectController.getProject);
-router.put("/:id", verifyToken, projectController.updateProject);
-router.delete("/:id", verifyToken, projectController.deleteProject);
-
 export default router;
