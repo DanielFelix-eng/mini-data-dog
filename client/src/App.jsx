@@ -1,5 +1,6 @@
 import React from 'react'
-import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { useSelector } from 'react-redux'
 
 import SignUpPage from './pages/signUp.jsx'
 import LoginPage from './pages/login.jsx'
@@ -9,36 +10,43 @@ import MonitorPage from './pages/monitor.jsx'
 import VerifyEmailPage from './pages/verifyEmail.jsx'
 import LandingPage from './pages/landing.jsx'
 
+// protect routes that require authentication
 const ProtectRoute = ({ children }) => {
-  const token = localStorage.getItem('token')
+  const { isAuthenticated, user } = useSelector((state) => state.auth)
 
-  if (!token) {
+  if (!isAuthenticated) {
     return <Navigate to='/login' replace />
+  }
+
+  if (!user?.isVerified) {
+    return <Navigate to='/verifyEmail' replace />
   }
 
   return children
 }
 
+// redirect authenticated user to home page
 const RedirectAuthenticatedUser = ({ children }) => {
-  const token = localStorage.getItem('token')
+  const { isAuthenticated, user } = useSelector((state) => state.auth)
 
-  if (token) {
+  if (isAuthenticated && user?.isVerified) {
     return <Navigate to='/' replace />
   }
 
   return children
 }
 
-
 export default function App() {
+      
+
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/landingPage" element={<LandingPage />} />
         <Route path="/signup" element={
-            <><SignUpPage /> </>} />
+            <RedirectAuthenticatedUser><SignUpPage /> </RedirectAuthenticatedUser>} />
         <Route path="/login" element={
-          <><LoginPage /></>
+          <RedirectAuthenticatedUser><LoginPage /></RedirectAuthenticatedUser>
         } />
         <Route path="/" element={
            
@@ -63,4 +71,3 @@ export default function App() {
     </BrowserRouter>
   )
 }
-

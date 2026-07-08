@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser'
 import authRoute from './routes/authRoute.js'
 import ProjectRoute from './routes/projectRoutes.js'
 import MonitorRoute from './routes/monitorRoutes.js'
+import DashboardRoute from './routes/dashboardRoute.js'
  import  { startMonitorJob } from './jobs/monitorjobs.js'
 dotenv.config()
 
@@ -26,6 +27,7 @@ app.use(cookieParser())
 app.use('/api', authRoute)
 app.use('/api', ProjectRoute)
 app.use('/api', MonitorRoute)
+app.use('/api', DashboardRoute)
  
 
 const PORT = process.env.PORT || 3000

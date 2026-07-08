@@ -3,11 +3,19 @@ import { Link } from 'react-router-dom';
 import { Sidebar } from '../components/sideBar';
 import Navbar from '../components/navbar';
 import { Activity, AlertTriangle, CheckCircle2, Server, TrendingUp } from 'lucide-react';
+import ResponseTimeChart from '../components/ResponseTimeCharts';
 
 const stats = [
   { title: 'Active Services', value: '24', icon: Server, color: 'from-indigo-500 to-purple-500' },
   { title: 'Alerts', value: '7', icon: AlertTriangle, color: 'from-amber-500 to-orange-500' },
   { title: 'Healthy Checks', value: '98%', icon: CheckCircle2, color: 'from-emerald-500 to-teal-500' },
+];
+const mockData = [
+  { checkedAt: "2026-07-08T10:00:00Z", responseTime: 140 },
+  { checkedAt: "2026-07-08T10:05:00Z", responseTime: 170 },
+  { checkedAt: "2026-07-08T10:10:00Z", responseTime: 120 },
+  { checkedAt: "2026-07-08T10:15:00Z", responseTime: 200 },
+  { checkedAt: "2026-07-08T10:20:00Z", responseTime: 160 },
 ];
 
 const activityItems = [
@@ -149,6 +157,8 @@ export default function Dashboard() {
                   ))}
                 </div>
               </div>
+<ResponseTimeChart data={mockData} />
+
             </section>
           </div>
         </main>
