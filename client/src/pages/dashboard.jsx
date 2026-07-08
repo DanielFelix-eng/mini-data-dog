@@ -2,14 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Sidebar } from '../components/sideBar';
 import Navbar from '../components/navbar';
-import { Activity, AlertTriangle, CheckCircle2, Server, TrendingUp } from 'lucide-react';
-import ResponseTimeChart from '../components/ResponseTimeCharts';
 
-const stats = [
-  { title: 'Active Services', value: '24', icon: Server, color: 'from-indigo-500 to-purple-500' },
-  { title: 'Alerts', value: '7', icon: AlertTriangle, color: 'from-amber-500 to-orange-500' },
-  { title: 'Healthy Checks', value: '98%', icon: CheckCircle2, color: 'from-emerald-500 to-teal-500' },
-];
+import { Activity, CheckCircle, Server, XCircle, TrendingUp, Timer } from 'lucide-react';
+import ResponseTimeChart from '../components/ResponseTimeCharts';
+import axios from 'axios'
+import { StatCard } from '../components/startCard';
+
+
+
+// const stats = [
+//   { title: 'Active Services', value: '24', icon: Server, color: 'from-indigo-500 to-purple-500' },
+//   { title: 'Alerts', value: '7', icon: AlertTriangle, color: 'from-amber-500 to-orange-500' },
+//   { title: 'Healthy Checks', value: '98%', icon: CheckCircle2, color: 'from-emerald-500 to-teal-500' },
+// ];
 const mockData = [
   { checkedAt: "2026-07-08T10:00:00Z", responseTime: 140 },
   { checkedAt: "2026-07-08T10:05:00Z", responseTime: 170 },
@@ -18,13 +23,22 @@ const mockData = [
   { checkedAt: "2026-07-08T10:20:00Z", responseTime: 160 },
 ];
 
+
 const activityItems = [
   { label: 'API latency improved by 12%', time: '10 mins ago' },
   { label: '3 new incidents resolved', time: '45 mins ago' },
   { label: 'Weekly report generated', time: '2 hrs ago' },
 ];
 
+
 export default function Dashboard() {
+  const [stats, setStats] = useState({
+    total: 0,
+    online: 0,
+    offline: 0,
+    averageResponseTime: 0,
+
+  });
   const [projects, setProjects] = useState([]);
 
   useEffect(() => {
@@ -46,6 +60,22 @@ export default function Dashboard() {
     };
 
     loadProjects();
+  }, []);
+
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        const response = await axios.get('/api/dashboard-stats', {
+
+          withCredentials: true,
+        });
+        setStats(response.data);
+      } catch (error) {
+        console.error('Error loading dashboard stats:', error);
+      }
+    };
+
+    loadStats();
   }, []);
 
   return (
@@ -73,15 +103,35 @@ export default function Dashboard() {
             </section>
 
             <section className="grid gap-4 md:grid-cols-3">
-              {stats.map(({ title, value, icon: Icon, color }) => (
-                <div key={title} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                  <div className={`mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${color} text-white`}>
-                    <Icon size={18} />
-                  </div>
-                  <p className="text-sm text-slate-500">{title}</p>
-                  <p className="mt-1 text-2xl font-semibold text-slate-900">{value}</p>
-                </div>
-              ))}
+              <StatCard
+                title='Total Monitors'
+                value={stats?.total || 0}
+                icon={<Server size={28} />}
+                color={"bg-gradient-to-br from-indigo-500 to-purple-500"}
+              />
+              <StatCard
+                title='online'
+
+                value={stats?.online || 0}
+                icon={<CheckCircle size={28} />}
+              />
+
+              <StatCard
+                title='Offline'
+                value={stats?.offline || 0}
+                icon={<XCircle size={28} />}
+                color={"bg-red-500"}
+              />
+
+              <StatCard
+                title='Avg Response'
+                value={stats?.total || 0}
+                icon={<Timer size={28} />}
+                color={"bg-gradient-to-br from-green-500 to-teal-500"}
+              />
+
+
+
             </section>
 
             <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -148,16 +198,42 @@ export default function Dashboard() {
                   <Activity size={18} className="text-indigo-500" />
                 </div>
 
-                <div className="space-y-3">
-                  {activityItems.map((item) => (
-                    <div key={item.label} className="rounded-xl border border-slate-100 bg-slate-50 p-3">
-                      <p className="text-sm font-medium text-slate-800">{item.label}</p>
-                      <p className="mt-1 text-xs text-slate-500">{item.time}</p>
-                    </div>
-                  ))}
+
+                <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
+
+                  <StatCard
+                    title='Total Monitors'
+                    value={stats?.total || 0}
+                    icon={<Server size={28} />}
+                    color={"bg-gradient-to-br from-indigo-500 to-purple-500"}
+                  />
+                  <StatCard
+                    title='online'
+
+                    value={stats?.online || 0}
+                    icon={<CheckCircle size={28} />}
+                  />
+
+                  <StatCard
+                    title='Offline'
+                    value={stats?.offline || 0}
+                    icon={<XCircle size={28} />}
+                    color={"bg-red-500"}
+                  />
+
+                  <StatCard
+                    title='Avg Response'
+                    value={stats?.total || 0}
+                    icon={<Timer size={28} />}
+                    color={"bg-gradient-to-br from-green-500 to-teal-500"}
+                  />
+
+
+
+
                 </div>
               </div>
-<ResponseTimeChart data={mockData} />
+              <ResponseTimeChart data={mockData} />
 
             </section>
           </div>

@@ -12,9 +12,10 @@ router.post('/verifyEmail', verifyToken, verifyEmail)
 router.post('/resendVerification', verifyToken, resendVerification)
 router.post('/forgotPassword', verifyToken, forgotPassword)
 router.post('/resetPassword', verifyToken, resetPassword)
-router.get('/verifyToken', verifyToken , (req,res)=>{ 
-     res.status(200).json({message:'Token is valid'}) }
+router.get('/verifyToken', verifyToken, (req, res) => {
+     res.status(200).json({ message: 'Token is valid' })
+}
 )
- 
+
 export default router
 

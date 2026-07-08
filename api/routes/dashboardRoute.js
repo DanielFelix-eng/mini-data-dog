@@ -1,6 +1,6 @@
-import express from 'éxpress'
- import  {getDashBoardStats} from '../controllers/dashboard.js' 
-  const route=  express.Router()
-   
-   router.get('/stats' , getDashBoardStats)
-    export default router
+import express from 'express'
+import { getDashBoardStats } from '../controlllers/dashboardcontrooler.js'
+const router = express.Router()
+
+router.get('/dashboard-stats', getDashBoardStats)
+export default router
