@@ -27,3 +27,21 @@ export const getDashBoardStats = async (req, res) => {
         res.status(500).json('error')
     }
 }
+export const getResponseTime =
+    async (req, res) => {
+        try {
+            const responseTimes = await Monitor.find(
+
+            )
+                .sort({
+                    lastChecked: -1
+                })
+                .limit(20)
+                .select('lastChecked lastResponseTime')
+                .lean()
+            res.status(200).json(responseTimes.reverse())
+console.log(responseTimes)
+        } catch (error) {
+            res.status(500).json('error')
+        }
+    }

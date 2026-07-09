@@ -65,7 +65,7 @@ export default function Dashboard() {
   useEffect(() => {
     const loadStats = async () => {
       try {
-        const response = await axios.get('/api/dashboard-stats', {
+        const response = await axios.get('/api/dashboard/dashboard-stats', {
 
           withCredentials: true,
         });
@@ -78,6 +78,27 @@ export default function Dashboard() {
     loadStats();
   }, []);
 
+  const [chartData, setChartData] = useState([]
+
+  )
+
+  useEffect(() => {
+    const loadChartData = async () => {
+      try {
+         const res = await fetch('/api/dashboard/response-times', {
+        method: 'GET',
+        credentials: 'include',
+      })
+
+      const data = await res.json().catch(() => null)
+console.log(data)
+      setChartData(Array.isArray(data) ? data : [])
+    } catch (error) {
+      console.log(error)
+    }
+    }
+    loadChartData()
+  }, [])
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
       <div className="flex min-h-screen">
@@ -201,39 +222,12 @@ export default function Dashboard() {
 
                 <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
 
-                  <StatCard
-                    title='Total Monitors'
-                    value={stats?.total || 0}
-                    icon={<Server size={28} />}
-                    color={"bg-gradient-to-br from-indigo-500 to-purple-500"}
-                  />
-                  <StatCard
-                    title='online'
-
-                    value={stats?.online || 0}
-                    icon={<CheckCircle size={28} />}
-                  />
-
-                  <StatCard
-                    title='Offline'
-                    value={stats?.offline || 0}
-                    icon={<XCircle size={28} />}
-                    color={"bg-red-500"}
-                  />
-
-                  <StatCard
-                    title='Avg Response'
-                    value={stats?.total || 0}
-                    icon={<Timer size={28} />}
-                    color={"bg-gradient-to-br from-green-500 to-teal-500"}
-                  />
-
 
 
 
                 </div>
               </div>
-              <ResponseTimeChart data={mockData} />
+              <ResponseTimeChart data={chartData} />
 
             </section>
           </div>

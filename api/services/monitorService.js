@@ -36,15 +36,13 @@ export const monitorService = async () => {
   try {
     const monitors = await Monitor.find({ enabled: true }).populate('project');
 
-    console.log('Found monitors , monitors.length:', monitors.length);
 
     for (const monitor of monitors) {
       const project = monitor.project;
       const targetUrl = getMonitorTargetUrl(project);
 
       if (!targetUrl) {
-        console.warn(`Monitor ${monitor._id} skipped because project ${project?.name || 'unknown'} has no valid URL`);
-        continue;
+         continue;
       }
       const responseTime = Date.now() - start;
 
@@ -74,7 +72,6 @@ export const monitorService = async () => {
           consecutiveFailures: nextStatus ? 0 : monitor.consecutiveFailures + 1,
         });
 
-        console.log(`Monitor ${monitor._id} for project ${project?.name || 'unknown'} responded with status: ${response.status}`);
       } catch (error) {
         await Monitor.findByIdAndUpdate(monitor._id, {
 
@@ -96,7 +93,6 @@ export const monitorService = async () => {
           responseTime,
         })
 
-        console.error(`Monitor ${monitor._id} for project ${project?.name || 'unknown'} failed: ${error.message}`);
       }
     }
 

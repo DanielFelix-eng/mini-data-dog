@@ -28,7 +28,7 @@ export default function VerifyEmailPage() {
 
     setSubmitting(true)
     try {
-      const res = await fetch('/api/verifyEmail', {
+      const res = await fetch('/api/auth/verifyEmail', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -42,7 +42,7 @@ export default function VerifyEmailPage() {
       }
 
       setSuccess('Email verified successfully. Redirecting to your dashboard...')
-      window.setTimeout(() => navigate('/'), 1200)
+      navigate('/')
     } catch {
       setError('Network error. Please try again.')
     } finally {
@@ -50,17 +50,20 @@ export default function VerifyEmailPage() {
     }
   }
 
+
   const resendVerification = async () => {
     setError('')
     setSuccess('')
     setResendMessage('')
 
+
     try {
-      const res = await fetch('/api/resendVerification', {
+      const res = await fetch('/api/auth/resendVerification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
       })
+
 
       const data = await res.json().catch(() => null)
       if (!res.ok) {

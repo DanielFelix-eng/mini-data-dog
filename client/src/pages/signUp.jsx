@@ -1,11 +1,12 @@
 import React, { useMemo, useState } from 'react'
 
- import {  signupStart,
+import {
+  signupStart,
   signupSuccess,
   signupFailure,
- } from '../slices/authSlice.js'
-import { useDispatch}  from 'react-redux'
-import { useNavigate } from 'react-router-dom' 
+} from '../slices/authSlice.js'
+import { useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import Oauth from '../components/googleAuth'
 
 export default function SignupPage() {
@@ -13,13 +14,13 @@ export default function SignupPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-   const navigate = useNavigate()
+  const navigate = useNavigate()
 
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
-   const dispatch =   useDispatch()
-    
+  const dispatch = useDispatch()
+
 
   const canSubmit = useMemo(() => {
     return (
@@ -43,7 +44,7 @@ export default function SignupPage() {
     dispatch(signupStart())
     setSubmitting(true)
     try {
-      const res = await fetch('/api/signup', {
+      const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -64,7 +65,7 @@ export default function SignupPage() {
       navigate('/verifyEmail')
     } catch {
       setError('Network error. Please try again.')
-       dispatch(signupFailure(error?.message || 'Network error'))
+      dispatch(signupFailure(error?.message || 'Network error'))
     } finally {
       setSubmitting(false)
     }
@@ -79,7 +80,7 @@ export default function SignupPage() {
               Create account
             </h1>
             <span className="text-xs px-3 py-1 rounded-full whitespace-nowrap text-[#3CFF87] border border-[rgba(60,255,135,0.35)] bg-[rgba(60,255,135,0.12)]">
-              
+
             </span>
           </div>
         </div>
@@ -144,7 +145,7 @@ export default function SignupPage() {
             </div>
 
             {error ? <div className="text-sm text-[#ff4d6d]">{error}</div> : null}
-  
+
             <button
               type="submit"
               disabled={submitting || !canSubmit}
@@ -152,7 +153,7 @@ export default function SignupPage() {
             >
               {submitting ? 'Creating...' : 'Sign up'}
             </button>
-             <Oauth />
+            <Oauth />
 
             <div
               className="text-sm text-[var(--text-h)] text-right cursor-pointer select-none mt-1"

@@ -20,7 +20,7 @@ const ResponseTimeChart = ({ data }) => {
           <CartesianGrid strokeDasharray="3 3" />
 
           <XAxis
-            dataKey="checkedAt"
+            dataKey="lastChecked"
             tickFormatter={(value) =>
               new Date(value).toLocaleTimeString([], {
                 hour: "2-digit",
@@ -45,7 +45,7 @@ const ResponseTimeChart = ({ data }) => {
 
           <Line
             type="monotone"
-            dataKey="responseTime"
+            dataKey="lastResponseTime"
             stroke="#3B82F6"
             strokeWidth={3}
             dot={false}

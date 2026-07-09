@@ -18,19 +18,21 @@ export const signup = async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // IMPORTANT: do NOT hash here.
+    // Your User model has a pre('save') hook that hashes `password`.
+    // Double-hashing breaks login password verification.
     const verificationToken = Math.floor(
       100000 + Math.random() * 900000
     ).toString();
-    
 
     const user = new User({
       email,
-      password: hashedPassword,
+      password, // will be hashed once by the model pre('save') hook
       name,
       verificationToken,
       verificationTokenExpire: new Date(Date.now() + 3600000),
     });
+
 
     await user.save();
     const token = generateToken(res, user._id);

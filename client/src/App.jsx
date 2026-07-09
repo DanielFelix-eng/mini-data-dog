@@ -37,23 +37,23 @@ const RedirectAuthenticatedUser = ({ children }) => {
 }
 
 export default function App() {
-      
+
 
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/landingPage" element={<LandingPage />} />
         <Route path="/signup" element={
-            <RedirectAuthenticatedUser><SignUpPage /> </RedirectAuthenticatedUser>} />
+          <RedirectAuthenticatedUser><SignUpPage /> </RedirectAuthenticatedUser>} />
         <Route path="/login" element={
           <RedirectAuthenticatedUser><LoginPage /></RedirectAuthenticatedUser>
         } />
         <Route path="/" element={
-           
-           <ProtectRoute >
-           <DashboardPage />
-            </ProtectRoute>
-             } />
+
+          <ProtectRoute >
+            <DashboardPage />
+          </ProtectRoute>
+        } />
         <Route path="/projects" element={
           <ProtectRoute>
             <ProjectsPage />
@@ -64,10 +64,10 @@ export default function App() {
             <MonitorPage />
           </ProtectRoute>
         } />
-              
-              <Route path="/verifyEmail" element={<VerifyEmailPage />} />
+
+        <Route path="/verifyEmail" element={<VerifyEmailPage />} />
       </Routes>
-       
+
     </BrowserRouter>
   )
 }

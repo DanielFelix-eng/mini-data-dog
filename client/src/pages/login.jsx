@@ -1,8 +1,12 @@
 import React, { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+
 import Oauth from '../components/googleAuth'
+import { loginFailure, loginSuccess } from '../slices/authSlice'
 
 export default function LoginPage() {
+  const dispatch = useDispatch()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -26,7 +30,7 @@ export default function LoginPage() {
 
     setSubmitting(true)
     try {
-      const res = await fetch('/api/login', {
+      const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -42,10 +46,14 @@ export default function LoginPage() {
       const token = data?.token
       if (token) localStorage.setItem('token', token)
 
+      dispatch(loginSuccess({ user: data?.user, token }))
+
       setSuccess('Welcome back. Redirecting to your dashboard...')
       navigate('/')
-    } catch {
+    } catch (err) {
+      console.error(err)
       setError('Network error. Please try again.')
+      dispatch(loginFailure(err?.message || 'Network error'))
     } finally {
       setSubmitting(false)
     }
@@ -106,7 +114,7 @@ export default function LoginPage() {
               className="mt-2 w-full rounded-xl bg-gradient-to-r from-cyan-500/90 via-emerald-400/90 to-lime-500/90 py-3 font-semibold text-[#062012] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-80"
             >
               {submitting ? 'Signing in...' : 'Login'}
-            </button> 
+            </button>
             <Oauth />
 
             <div

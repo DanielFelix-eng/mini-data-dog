@@ -7,7 +7,7 @@ const router = express.Router()
 // Mounted at /api
 router.post('/signup', signup)
 router.post('/login', login)
-router.post('/auth/google', googleAuth)
+router.post('/google', googleAuth)
 router.post('/verifyEmail', verifyToken, verifyEmail)
 router.post('/resendVerification', verifyToken, resendVerification)
 router.post('/forgotPassword', verifyToken, forgotPassword)
