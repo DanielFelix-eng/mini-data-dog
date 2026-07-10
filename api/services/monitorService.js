@@ -1,6 +1,7 @@
 import axios from 'axios';
 import Monitor from '../models/monitor.js';
 import MonitorLog from '../models/MonitorLog.js';
+import { sendStatusEmail } from './notification.js';
 
 const normalizeUrl = (value) => {
   if (!value) return null;
@@ -22,15 +23,18 @@ export const getMonitorTargetUrl = (project) => {
 
 export const monitorService = async () => {
   try {
-    const monitors = await Monitor.find({ enabled: true }).populate('project');
+    const monitors = await Monitor.find({ enabled: true })
+    .populate('project')
+    .populate('createdBy', 'email');
 
     for (const monitor of monitors) {
       const project = monitor.project;
+      const user = monitor.createdBy;
       const targetUrl = getMonitorTargetUrl(project);
       if (!targetUrl) continue;
 
       const reqStart = Date.now();
-
+      const previousStatus = monitor.lastStatus || 'UNKNOWN';
       try {
         const response = await axios.get(targetUrl, {
           timeout: monitor.timeout || 10000,
@@ -67,6 +71,26 @@ export const monitorService = async () => {
           consecutiveFailures: isUp ? 0 : monitor.consecutiveFailures + 1,
           uptimePercentage: (newSuccessfulChecks / newTotalChecks) * 100,
         });
+        
+        // Send notification on status change
+        if (user?.email) {
+          if (previousStatus !== 'UP' && nextStatus === 'UP') {
+            await sendStatusEmail({
+              to: user.email,
+              monitor: monitor._id,
+              project: project.name,
+              status: 'UP'
+            });
+          }
+          if (previousStatus !== 'DOWN' && nextStatus === 'DOWN') {
+            await sendStatusEmail({
+              to: user.email,
+              monitor: monitor._id,
+              project: project.name,
+              status: 'DOWN'
+            });
+          }
+        }
 
       } catch (error) {
         const responseTime = Date.now() - reqStart;
@@ -91,8 +115,18 @@ export const monitorService = async () => {
           responseTime,
           errorMessage: error.message,
         });
+        
+        // Send notification on error if was UP
+        if (user?.email && previousStatus !== 'DOWN') {
+          await sendStatusEmail({
+            to: user.email,
+            monitor: monitor._id,
+            project: project.name,
+            status: 'DOWN'
+          });
+        }
       }
-    }
+    } 
 
     return monitors;
   } catch (error) {
