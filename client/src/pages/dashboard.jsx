@@ -1,13 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Sidebar } from '../components/sideBar';
-import Navbar from '../components/navbar';
+import React, { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { Sidebar } from '../components/sideBar'
+import Navbar from '../components/navbar'
 
-import { Activity, CheckCircle, Server, XCircle, TrendingUp, Timer } from 'lucide-react';
-import ResponseTimeChart from '../components/ResponseTimeCharts';
+import { Activity, CheckCircle, Server, XCircle, TrendingUp, Timer } from 'lucide-react'
+import ResponseTimeChart from '../components/ResponseTimeCharts'
 import axios from 'axios'
-import { StatCard } from '../components/startCard';
-import UptimeChart from '../components/uptimeChart';
+import { StatCard } from '../components/startCard'
+import UptimeChart from '../components/uptimeChart'
+
+import { useDispatch, useSelector } from 'react-redux'
+import {
+  resetDashboard,
+  setDashboardOwner,
+  setDashboardStatsForOwner,
+  setDashboardChartDataForOwner,
+  setDashboardUptimeForOwner,
+} from '../slices/dashboardSlice'
+
 
 
 
@@ -33,14 +43,18 @@ const activityItems = [
 
 
 export default function Dashboard() {
-  const [stats, setStats] = useState({
-    total: 0,
-    online: 0,
-    offline: 0,
-    averageResponseTime: 0,
+  const dispatch = useDispatch()
+  const authUserId = useSelector((s) => s?.auth?.userId)
 
-  });
-  const [projects, setProjects] = useState([]);
+  const dashboardState = useSelector((s) => s?.dashboard)
+
+  const stats = dashboardState?.stats || { total: 0, online: 0, offline: 0, averageResponseTime: 0 }
+  const chartData = dashboardState?.chartData || []
+  const uptime = dashboardState?.uptime || 0
+
+  const [projects, setProjects] = useState([])
+
+
 
   useEffect(() => {
     const loadProjects = async () => {
@@ -64,25 +78,27 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
+    // Reset dashboard data when auth user changes (prevents stale cross-user UI)
+    dispatch(resetDashboard())
+    if (authUserId) dispatch(setDashboardOwner(authUserId))
+
     const loadStats = async () => {
       try {
         const response = await axios.get('/api/dashboard/dashboard-stats', {
-
           withCredentials: true,
-        });
-        setStats(response.data);
+        })
+
+        dispatch(
+          setDashboardStatsForOwner({
+            ownerId: authUserId,
+            stats: response.data,
+          })
+        )
       } catch (error) {
-        console.error('Error loading dashboard stats:', error);
+        console.error('Error loading dashboard stats:', error)
       }
-    };
+    }
 
-    loadStats();
-  }, []);
-
-  const [chartData, setChartData] = useState([])
-  const [uptime, setUptime] = useState(0)
-
-  useEffect(() => {
     const loadChartData = async () => {
       try {
         const res = await fetch('/api/dashboard/response-times', {
@@ -91,34 +107,49 @@ export default function Dashboard() {
         })
 
         const data = await res.json().catch(() => null)
-        setChartData(Array.isArray(data) ? data : [])
+
+        dispatch(
+          setDashboardChartDataForOwner({
+            ownerId: authUserId,
+            chartData: Array.isArray(data) ? data : [],
+          })
+        )
       } catch (error) {
         console.log(error)
       }
     }
 
-   
-
-    loadChartData()
-  }, []) 
-   useEffect(() => {
-      const loadUptime = async () => {
+    const loadUptime = async () => {
       try {
         const res = await fetch('/api/dashboard/uptime-percentage', {
           method: 'GET',
           credentials: 'include',
         })
         const data = await res.json().catch(() => null)
-        setUptime(Number(data?.uptime) || 0)
+
+        dispatch(
+          setDashboardUptimeForOwner({
+            ownerId: authUserId,
+            uptime: Number(data?.uptime) || 0,
+          })
+        )
       } catch (error) {
         console.log(error)
       }
     }
+
+    loadStats()
+    loadChartData()
     loadUptime()
-     
-   })
+  }, [authUserId, dispatch]);
+
+
+  // chartData and uptime are sourced from Redux dashboard slice (guarded by ownerId)
+
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
+
       <div className="flex min-h-screen">
         <Sidebar />
 

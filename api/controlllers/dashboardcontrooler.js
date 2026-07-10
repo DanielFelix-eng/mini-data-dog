@@ -4,7 +4,8 @@ import mongoose from 'mongoose';
 
 export const getDashBoardStats = async (req, res) => {
   try {
-    const monitors = await Monitor.find({ enabled: true });
+    const userId = req.userId;
+    const monitors = await Monitor.find({ enabled: true, createdBy: userId });
     const total = monitors.length;
 
     const online = monitors.filter((m) => m.lastStatus === 'UP').length;
@@ -30,18 +31,25 @@ export const getDashBoardStats = async (req, res) => {
 
 export const getResponseTime = async (req, res) => {
   try {
+    const userId = req.userId;
     const { monitorId } = req.query;
 
-    const filter = {};
+    // Get monitor IDs belonging to the current user
+    const userMonitors = await Monitor.find({ createdBy: userId }).select('_id').lean();
+    const userMonitorIds = userMonitors.map(m => m._id);
+
+    const filter = { monitor: { $in: userMonitorIds } };
     if (monitorId) {
       if (!mongoose.Types.ObjectId.isValid(monitorId)) {
         return res.status(400).json({ message: 'Invalid monitor id' });
       }
+      // Ensure the requested monitor belongs to the user
+      if (!userMonitorIds.some(id => id.equals(monitorId))) {
+        return res.status(403).json({ message: 'Monitor not found' });
+      }
       filter.monitor = monitorId;
     }
 
-    // Pull from MonitorLog so this is an actual time series of checks,
-    // not just the latest snapshot of up to 20 different monitors.
     const logs = await MonitorLog.find(filter)
       .sort({ createdAt: -1 })
       .limit(20)
@@ -57,6 +65,7 @@ export const getResponseTime = async (req, res) => {
 
 export const uptimePercentage = async (req, res) => {
   try {
+    const userId = req.userId;
     const id = req.params?.id || req.query?.id;
 
     if (id) {
@@ -64,20 +73,18 @@ export const uptimePercentage = async (req, res) => {
         return res.status(400).json({ message: 'Invalid monitor id' });
       }
 
-      const monitor = await Monitor.findById(id);
+      const monitor = await Monitor.findOne({ _id: id, createdBy: userId });
       if (!monitor) {
         return res.status(404).json({ message: 'Monitor not found' });
       }
       return res.json({ uptime: monitor.uptimePercentage ?? 0 });
     }
 
-    const monitors = await Monitor.find({ enabled: true });
+    const monitors = await Monitor.find({ enabled: true, createdBy: userId });
     if (!monitors.length) return res.json({ uptime: 0 });
 
-    // Weighted by total checks, so a monitor with 5 checks doesn't
-    // count the same as one with 50,000.
     const totalChecks = monitors.reduce((sum, m) => sum + (m.totalChecks || 0), 0);
-    const totalSuccessful = monitors.reduce((sum, m) => sum + (m.successfullChecks || 0), 0);
+    const totalSuccessful = monitors.reduce((sum, m) => sum + (m.successfulChecks || 0), 0);
 
     const avgUptime = totalChecks > 0
       ? (totalSuccessful / totalChecks) * 100

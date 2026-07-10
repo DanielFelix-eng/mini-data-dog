@@ -152,7 +152,16 @@ export const resendVerification = async (req, res) => {
             user: { ...user._doc, password: undefined },
          });
      } catch (error) {
-        return res.status(500).json({ message: error.message });
+        console.error('Login error:', {
+          message: error?.message,
+          stack: error?.stack,
+          env: {
+            JWT_SECRET_SET: !!process.env.JWT_SECRET,
+            NODE_ENV: process.env.NODE_ENV,
+          },
+        })
+
+        return res.status(500).json({ message: error?.message || 'Internal Server Error' });
      } }
        //forgot password logic 
         export const  forgotPassword = async (req,res) => {  
