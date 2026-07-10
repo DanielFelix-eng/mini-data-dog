@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ExternalLink, Globe, PlusCircle, ShieldCheck } from 'lucide-react';
+import { ExternalLink, Globe, PlusCircle, ShieldCheck, Trash2, Pause, Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { Sidebar } from '../components/sideBar';
@@ -20,6 +20,38 @@ export default function MonitorPage() {
   const [connectToProject, setConnectToProject] = useState(true);
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const handleDeleteMonitor = async (monitorId) => {
+    if (!window.confirm('Are you sure you want to delete this monitor?')) return;
+    try {
+      const response = await fetch(`/api/monitors/${monitorId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Failed to delete monitor');
+      setMonitors((prev) => prev.filter((m) => m._id !== monitorId));
+      setMessage('Monitor deleted successfully');
+    } catch {
+      setMessage('Failed to delete monitor');
+    }
+  };
+
+  const handleToggleMonitor = async (monitorId, currentEnabled) => {
+    try {
+      const response = await fetch(`/api/monitors/${monitorId}/toggle`, {
+        method: 'PATCH',
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Failed to toggle monitor');
+      const updatedMonitor = await response.json();
+      setMonitors((prev) =>
+        prev.map((m) => (m._id === monitorId ? updatedMonitor : m))
+      );
+      setMessage(`${currentEnabled ? 'Monitor paused' : 'Monitor resumed'}`);
+    } catch {
+      setMessage('Failed to toggle monitor');
+    }
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -278,9 +310,25 @@ export default function MonitorPage() {
                                 {monitor.enabled ? 'Monitoring is active' : 'Monitoring is paused'}
                               </p>
                             </div>
-                            <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${monitor.enabled ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                              {monitor.enabled ? 'Enabled' : 'Disabled'}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${monitor.enabled ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                                {monitor.enabled ? 'Enabled' : 'Disabled'}
+                              </span>
+                              <button
+                                onClick={() => handleToggleMonitor(monitor._id, monitor.enabled)}
+                                className="rounded-lg p-1.5 text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 transition-colors"
+                                title={monitor.enabled ? 'Pause monitoring' : 'Resume monitoring'}
+                              >
+                                {monitor.enabled ? <Pause size={16} /> : <Play size={16} />}
+                              </button>
+                              <button
+                                onClick={() => handleDeleteMonitor(monitor._id)}
+                                className="rounded-lg p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-colors"
+                                title="Delete monitor"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
                           </div>
 
                           <div className="mt-3 flex items-center justify-between gap-2 text-sm text-slate-500">

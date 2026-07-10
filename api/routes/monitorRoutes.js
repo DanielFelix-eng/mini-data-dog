@@ -104,4 +104,25 @@ router.delete('/monitors/:id', verifyToken, async (req, res) => {
   }
 });
 
+// Toggle monitor enabled/disabled
+router.patch('/monitors/:id/toggle', verifyToken, async (req, res) => {
+  try {
+    const monitor = await Monitor.findOne({
+      _id: req.params.id,
+      createdBy: req.user?.id || req.userId,
+    });
+
+    if (!monitor) {
+      return res.status(404).json({ message: 'Monitor not found' });
+    }
+
+    monitor.enabled = !monitor.enabled;
+    await monitor.save();
+
+    res.status(200).json(monitor);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 export default router;

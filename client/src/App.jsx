@@ -7,6 +7,7 @@ import LoginPage from './pages/login.jsx'
 import DashboardPage from './pages/dashboard.jsx'
 import ProjectsPage from './pages/projects.jsx'
 import MonitorPage from './pages/monitor.jsx'
+import LogPage from './pages/logpage.jsx'
 import VerifyEmailPage from './pages/verifyEmail.jsx'
 import LandingPage from './pages/landing.jsx'
 
@@ -59,9 +60,14 @@ export default function App() {
             <ProjectsPage />
           </ProtectRoute>
         } />
-        <Route path="/monitor" element={
+<Route path="/monitor" element={
           <ProtectRoute>
             <MonitorPage />
+          </ProtectRoute>
+        } />
+        <Route path="/logs" element={
+          <ProtectRoute>
+            <LogPage />
           </ProtectRoute>
         } />
 

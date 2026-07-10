@@ -7,6 +7,7 @@ import authRoute from './routes/authRoute.js'
 import ProjectRoute from './routes/projectRoutes.js'
 import MonitorRoute from './routes/monitorRoutes.js'
 import DashboardRoute from './routes/dashboardRoute.js'
+import LogRoute from './routes/logRoutes.js'
 import { startMonitorJob } from './jobs/monitorjobs.js'
 dotenv.config()
 
@@ -28,6 +29,7 @@ app.use('/api/auth', authRoute)
 app.use('/api', ProjectRoute)
 app.use('/api', MonitorRoute)
 app.use('/api/dashboard', DashboardRoute)
+app.use('/api/logs', LogRoute)
 
 // Quick cookie debug (avoid logging token contents)
 app.get('/api/auth/debug/cookies', (req, res) => {

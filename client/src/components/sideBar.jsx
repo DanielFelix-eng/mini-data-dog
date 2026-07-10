@@ -7,9 +7,9 @@ export function Sidebar() {
     { icon: LayoutDashboard, label: "Dashboard", path: "/", active: location.pathname === "/" },
     { icon: FolderKanban, label: "Projects", path: "/projects", active: location.pathname === "/projects" },
     { icon: Server, label: "Services" },
-    { icon: ShieldAlert, label: "Monitors", path: "/monitor" },
+    { icon: ShieldAlert, label: "Monitors", path: "/monitor", active: location.pathname === "/monitor" },
     { icon: Bell, label: "Alerts", badge: 3 },
-    { icon: FileText, label: "Logs" },
+    { icon: FileText, label: "Logs", path: "/logs", active: location.pathname === "/logs" },
     { icon: BarChart3, label: "Analytics" },
           { icon: Settings, label: "Settings" },
   ];

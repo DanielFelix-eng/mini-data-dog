@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ExternalLink, Globe, PlusCircle, ShieldCheck } from 'lucide-react';
+import { ExternalLink, Globe, PlusCircle, ShieldCheck, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { Sidebar } from '../components/sideBar';
@@ -17,6 +17,21 @@ export default function ProjectsPage() {
   const [form, setForm] = useState(initialForm);
   const [projects, setProjects] = useState([]);
   const [message, setMessage] = useState('');
+
+  const handleDeleteProject = async (projectId) => {
+    if (!window.confirm('Are you sure you want to delete this project?')) return;
+    try {
+      const response = await fetch(`/api/projects/${projectId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Failed to delete project');
+      setProjects((prev) => prev.filter((p) => p._id !== projectId));
+      setMessage('Project deleted successfully');
+    } catch {
+      setMessage('Failed to delete project');
+    }
+  };
 
   useEffect(() => {
     const loadProjects = async () => {
@@ -246,9 +261,18 @@ export default function ProjectsPage() {
                             <h5 className="font-semibold text-slate-900">{project.name}</h5>
                             <p className="mt-1 text-sm text-slate-600">{project.description}</p>
                           </div>
-                          <span className="rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-medium text-indigo-700">
-                            {project.projectType}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-medium text-indigo-700">
+                              {project.projectType}
+                            </span>
+                            <button
+                              onClick={() => handleDeleteProject(project._id)}
+                              className="rounded-lg p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-colors"
+                              title="Delete project"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
                         </div>
 
                         <div className="mt-3 flex items-center justify-between text-sm text-slate-500">
