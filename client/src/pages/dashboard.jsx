@@ -7,6 +7,7 @@ import { Activity, CheckCircle, Server, XCircle, TrendingUp, Timer } from 'lucid
 import ResponseTimeChart from '../components/ResponseTimeCharts';
 import axios from 'axios'
 import { StatCard } from '../components/startCard';
+import UptimeChart from '../components/uptimeChart';
 
 
 
@@ -78,27 +79,44 @@ export default function Dashboard() {
     loadStats();
   }, []);
 
-  const [chartData, setChartData] = useState([]
-
-  )
+  const [chartData, setChartData] = useState([])
+  const [uptime, setUptime] = useState(0)
 
   useEffect(() => {
     const loadChartData = async () => {
       try {
-         const res = await fetch('/api/dashboard/response-times', {
-        method: 'GET',
-        credentials: 'include',
-      })
+        const res = await fetch('/api/dashboard/response-times', {
+          method: 'GET',
+          credentials: 'include',
+        })
 
-      const data = await res.json().catch(() => null)
-console.log(data)
-      setChartData(Array.isArray(data) ? data : [])
-    } catch (error) {
-      console.log(error)
+        const data = await res.json().catch(() => null)
+        setChartData(Array.isArray(data) ? data : [])
+      } catch (error) {
+        console.log(error)
+      }
     }
-    }
+
+   
+
     loadChartData()
-  }, [])
+  }, []) 
+   useEffect(() => {
+      const loadUptime = async () => {
+      try {
+        const res = await fetch('/api/dashboard/uptime-percentage', {
+          method: 'GET',
+          credentials: 'include',
+        })
+        const data = await res.json().catch(() => null)
+        setUptime(Number(data?.uptime) || 0)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    loadUptime()
+     
+   })
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
       <div className="flex min-h-screen">
@@ -131,7 +149,7 @@ console.log(data)
                 color={"bg-gradient-to-br from-indigo-500 to-purple-500"}
               />
               <StatCard
-                title='online'
+                title='Online'
 
                 value={stats?.online || 0}
                 icon={<CheckCircle size={28} />}
@@ -192,6 +210,7 @@ console.log(data)
 
             <section className="grid gap-6 lg:grid-cols-[1.4fr_0.8fr]">
               <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+
                 <div className="mb-4 flex items-center justify-between">
                   <div>
                     <h4 className="text-lg font-semibold text-slate-900">Performance Trend</h4>
@@ -228,6 +247,7 @@ console.log(data)
                 </div>
               </div>
               <ResponseTimeChart data={chartData} />
+              <UptimeChart uptime={uptime} />
 
             </section>
           </div>
