@@ -166,9 +166,7 @@ export default function Dashboard() {
                     Your infrastructure is healthy and monitoring is active across all key services.
                   </p>
                 </div>
-                <button className="rounded-full bg-white/15 px-4 py-2 text-sm font-medium backdrop-blur hover:bg-white/25">
-                  View Report
-                </button>
+                
               </div>
             </section>
 
@@ -240,43 +238,9 @@ export default function Dashboard() {
             </section>
 
             <section className="grid gap-6 lg:grid-cols-[1.4fr_0.8fr]">
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+       
 
-                <div className="mb-4 flex items-center justify-between">
-                  <div>
-                    <h4 className="text-lg font-semibold text-slate-900">Performance Trend</h4>
-                    <p className="text-sm text-slate-500">Last 7 days</p>
-                  </div>
-                  <div className="flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-600">
-                    <TrendingUp size={16} />
-                    +8.4%
-                  </div>
-                </div>
-
-                <div className="flex h-44 items-end gap-3 rounded-2xl bg-slate-50 p-4">
-                  {[40, 70, 55, 80, 68, 92, 85].map((height, idx) => (
-                    <div key={idx} className="flex-1 rounded-t-xl bg-gradient-to-t from-indigo-500 to-violet-400" style={{ height: `${height}%` }} />
-                  ))}
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <div className="mb-4 flex items-center justify-between">
-                  <div>
-                    <h4 className="text-lg font-semibold text-slate-900">Recent Activity</h4>
-                    <p className="text-sm text-slate-500">Latest updates</p>
-                  </div>
-                  <Activity size={18} className="text-indigo-500" />
-                </div>
-
-
-                <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
-
-
-
-
-                </div>
-              </div>
+          
               <ResponseTimeChart data={chartData} />
               <UptimeChart uptime={uptime} />
 

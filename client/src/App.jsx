@@ -11,6 +11,8 @@ import LogPage from './pages/logpage.jsx'
 import VerifyEmailPage from './pages/verifyEmail.jsx'
 import LandingPage from './pages/landing.jsx'
 import SettingsPage from './pages/settings.jsx'
+import AnalyticsPage from './pages/analytics.jsx'
+import { SidebarProvider } from './context/SidebarContext'
 
 // protect routes that require authentication
 const ProtectRoute = ({ children }) => {
@@ -43,7 +45,8 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <Routes>
+      <SidebarProvider>
+        <Routes>
         <Route path="/landingPage" element={<LandingPage />} />
         <Route path="/signup" element={
           <RedirectAuthenticatedUser><SignUpPage /> </RedirectAuthenticatedUser>} />
@@ -76,10 +79,15 @@ export default function App() {
             <SettingsPage />
           </ProtectRoute>
         } />
+        <Route path="/analytics" element={
+          <ProtectRoute>
+            <AnalyticsPage />
+          </ProtectRoute>
+        } />
 
-        <Route path="/verifyEmail" element={<VerifyEmailPage />} />
+<Route path="/verifyEmail" element={<VerifyEmailPage />} />
       </Routes>
-
+    </SidebarProvider>
     </BrowserRouter>
   )
 }
