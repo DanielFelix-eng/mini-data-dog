@@ -11,7 +11,7 @@ export function Sidebar() {
     { icon: Bell, label: "Alerts", badge: 3 },
     { icon: FileText, label: "Logs", path: "/logs", active: location.pathname === "/logs" },
     { icon: BarChart3, label: "Analytics" },
-          { icon: Settings, label: "Settings" },
+    { icon: Settings, label: "Settings", path: "/settings", active: location.pathname === "/settings" },
   ];
 
   return (

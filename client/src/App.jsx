@@ -10,6 +10,7 @@ import MonitorPage from './pages/monitor.jsx'
 import LogPage from './pages/logpage.jsx'
 import VerifyEmailPage from './pages/verifyEmail.jsx'
 import LandingPage from './pages/landing.jsx'
+import SettingsPage from './pages/settings.jsx'
 
 // protect routes that require authentication
 const ProtectRoute = ({ children }) => {
@@ -68,6 +69,11 @@ export default function App() {
         <Route path="/logs" element={
           <ProtectRoute>
             <LogPage />
+          </ProtectRoute>
+        } />
+        <Route path="/settings" element={
+          <ProtectRoute>
+            <SettingsPage />
           </ProtectRoute>
         } />
 
