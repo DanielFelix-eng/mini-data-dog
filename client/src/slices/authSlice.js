@@ -1,4 +1,5 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
 const initialState = {
   user: null,
@@ -6,8 +7,23 @@ const initialState = {
   userId: null,
   isAuthenticated: false,
   isLoading: false,
+  isAuthChecking: true,
   error: null,
 };
+
+export const checkAuth = createAsyncThunk(
+  "auth/checkAuth",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await axios.get("/api/auth/checkauth", {
+        withCredentials: true,
+      });
+      return res.data.user;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Auth check failed");
+    }
+  }
+);
 
 const authSlice = createSlice({
   name: "auth",
@@ -72,6 +88,24 @@ const authSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(checkAuth.pending, (state) => {
+        state.isAuthChecking = true;
+      })
+      .addCase(checkAuth.fulfilled, (state, action) => {
+        state.isAuthChecking = false;
+        state.isAuthenticated = true;
+        state.user = action.payload;
+        state.userId = action.payload?._id || null;
+      })
+      .addCase(checkAuth.rejected, (state) => {
+        state.isAuthChecking = false;
+        state.isAuthenticated = false;
+        state.user = null;
+        state.userId = null;
+      });
   },
 });
 

@@ -13,10 +13,19 @@ import LandingPage from './pages/landing.jsx'
 import SettingsPage from './pages/settings.jsx'
 import AnalyticsPage from './pages/analytics.jsx'
 import { SidebarProvider } from './context/SidebarContext'
+import { AuthProvider } from './components/AuthProvider'
 
 // protect routes that require authentication
 const ProtectRoute = ({ children }) => {
-  const { isAuthenticated, user } = useSelector((state) => state.auth)
+  const { isAuthenticated, user, isAuthChecking } = useSelector((state) => state.auth)
+
+  if (isAuthChecking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-emerald-500 border-t-transparent"></div>
+      </div>
+    )
+  }
 
   if (!isAuthenticated) {
     return <Navigate to='/login' replace />
@@ -31,7 +40,15 @@ const ProtectRoute = ({ children }) => {
 
 // redirect authenticated user to home page
 const RedirectAuthenticatedUser = ({ children }) => {
-  const { isAuthenticated, user } = useSelector((state) => state.auth)
+  const { isAuthenticated, user, isAuthChecking } = useSelector((state) => state.auth)
+
+  if (isAuthChecking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-emerald-500 border-t-transparent"></div>
+      </div>
+    )
+  }
 
   if (isAuthenticated && user?.isVerified) {
     return <Navigate to='/' replace />
@@ -46,7 +63,8 @@ export default function App() {
   return (
     <BrowserRouter>
       <SidebarProvider>
-        <Routes>
+        <AuthProvider>
+          <Routes>
         <Route path="/landingPage" element={<LandingPage />} />
         <Route path="/signup" element={
           <RedirectAuthenticatedUser><SignUpPage /> </RedirectAuthenticatedUser>} />
@@ -86,8 +104,9 @@ export default function App() {
         } />
 
 <Route path="/verifyEmail" element={<VerifyEmailPage />} />
-      </Routes>
-    </SidebarProvider>
+          </Routes>
+        </AuthProvider>
+      </SidebarProvider>
     </BrowserRouter>
   )
 }
