@@ -41,6 +41,12 @@ const activityItems = [
   { label: 'Weekly report generated', time: '2 hrs ago' },
 ];
 
+function getGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good morning';
+  if (hour < 17) return 'Good afternoon';
+  return 'Good evening';
+}
 
 export default function Dashboard() {
   const dispatch = useDispatch()
@@ -160,7 +166,7 @@ export default function Dashboard() {
             <section className="rounded-3xl bg-gradient-to-br from-indigo-600 to-violet-500 p-6 text-white shadow-lg">
               <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                 <div>
-                  <p className="text-sm font-medium text-indigo-100">System Health</p>
+                  <p className="text-sm font-medium text-indigo-100">{getGreeting()}, Felix</p>
                   <h3 className="mt-1 text-2xl font-semibold">Everything is running smoothly</h3>
                   <p className="mt-2 max-w-xl text-sm text-indigo-100">
                     Your infrastructure is healthy and monitoring is active across all key services.

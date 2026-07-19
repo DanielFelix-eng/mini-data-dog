@@ -1,5 +1,5 @@
 import express from 'express'
-import { signup, login, verifyEmail, resendVerification, resetPassword, forgotPassword, googleAuth } from '../controlllers/authcontroller.js'
+import { signup, login, verifyEmail, resendVerification, resetPassword, forgotPassword, googleAuth, checkauth } from '../controlllers/authcontroller.js'
 import { verifyToken } from '../middleware/verifyToken.js'
 
 const router = express.Router()
@@ -16,6 +16,7 @@ router.get('/verifyToken', verifyToken, (req, res) => {
      res.status(200).json({ message: 'Token is valid' })
 }
 )
+router.get('/checkauth', verifyToken, checkauth)
 
 export default router
 

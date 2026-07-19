@@ -1,11 +1,11 @@
-import { LayoutDashboard, FolderKanban, Server, ShieldAlert, Bell, FileText, BarChart3, Settings, HelpCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { LayoutDashboard, FolderKanban, Server, ShieldAlert, Bell, FileText, BarChart3, Settings, HelpCircle, Dog, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useSidebar } from '../context/SidebarContext';
 
 export function Sidebar() {
   const location = useLocation();
-  const { collapsed, toggleSidebar } = useSidebar();
-  
+  const { collapsed, setHover, toggleSidebar } = useSidebar();
+   
   const navItems = [
     { icon: LayoutDashboard, label: "Dashboard", path: "/", active: location.pathname === "/" },
     { icon: FolderKanban, label: "Projects", path: "/projects", active: location.pathname === "/projects" },
@@ -16,12 +16,16 @@ export function Sidebar() {
   ];
 
   return (
-    <aside className={`bg-[#0F1629] min-h-screen flex flex-col justify-between py-5 px-3 transition-all duration-300 ease-in-out ${collapsed ? 'w-20' : 'w-[248px]'}`}>
+    <aside 
+      className={`bg-[#0F1629] min-h-screen flex flex-col justify-between py-5 px-3 transition-all duration-300 ease-in-out ${collapsed ? 'w-20' : 'w-[248px]'}`}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
       <div>
         {/* Logo */}
         <div className={`flex items-center gap-2.5 px-3 mb-6 transition-all duration-300 ${collapsed ? 'justify-center' : ''}`}>
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-400 to-indigo-600 flex items-center justify-center text-[15px] flex-shrink-0">
-            🐶
+            <Dog size={16} className="text-white" />
           </div>
           {!collapsed && (
             <span className="text-white font-semibold text-[16px] whitespace-nowrap overflow-hidden transition-opacity duration-200">Mini DataDog</span>

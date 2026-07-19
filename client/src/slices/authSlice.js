@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import { api } from "../lib/axios";
 
 const initialState = {
   user: null,
@@ -15,9 +15,7 @@ export const checkAuth = createAsyncThunk(
   "auth/checkAuth",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await axios.get("/api/auth/checkauth", {
-        withCredentials: true,
-      });
+      const res = await api.get("/auth/checkauth");
       return res.data.user;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Auth check failed");

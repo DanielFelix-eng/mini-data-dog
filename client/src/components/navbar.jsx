@@ -1,11 +1,22 @@
-import { Bell, ChevronDown, Search } from 'lucide-react';
+import { Bell, ChevronDown, Search, Sunrise, Sun, Moon } from 'lucide-react';
+
+function getGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return { text: 'Good morning', icon: Sunrise };
+  if (hour < 17) return { text: 'Good afternoon', icon: Sun };
+  return { text: 'Good evening', icon: Moon };
+}
 
 export default function Navbar() {
+  const { text: greeting, icon: GreetingIcon } = getGreeting();
   return (
     <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4 shadow-sm">
       <div>
         <p className="text-sm font-medium text-indigo-500">Overview</p>
-        <h2 className="text-xl font-semibold text-slate-900">Good morning, Felix</h2>
+        <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
+          <GreetingIcon size={20} className="text-indigo-500" />
+          {greeting}, Felix
+        </h2>
       </div>
 
       <div className="flex items-center gap-3">

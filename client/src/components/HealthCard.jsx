@@ -54,12 +54,12 @@ export function HealthCard({
   const statusText = statusTextColors[status] || statusTextColors.unknown;
 
   return (
-    <div className="rounded-3xl border shadow-sm transition-all hover:shadow-md">
+    <div className="rounded-2xl border border-slate-100 shadow-sm transition-all duration-300 hover:shadow-lg">
       <div className={`p-5 ${statusBg}`}>
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <div className={`w-10 h-10 rounded-full ${statusColor} flex items-center justify-center text-white flex-shrink-0`}>
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-xl ${statusColor} flex items-center justify-center text-white flex-shrink-0`}>
                 <StatusIcon size={20} />
               </div>
               <div className="min-w-0">
@@ -69,7 +69,7 @@ export function HealthCard({
             </div>
             
             {image && (
-              <div className="mt-4 rounded-2xl overflow-hidden bg-slate-100">
+              <div className="mt-4 rounded-xl overflow-hidden bg-slate-100">
                 <img
                   src={image}
                   alt={title}
@@ -79,7 +79,7 @@ export function HealthCard({
             )}
 
             {details && showDetails && (
-              <div className="mt-4 rounded-2xl bg-white p-4 border border-slate-200 animate-fade-in">
+              <div className="mt-4 rounded-xl bg-white p-4 border border-slate-200 animate-fade-in">
                 <div className="space-y-3 text-sm text-slate-600">
                   {Object.entries(details).map(([key, value]) => (
                     <div key={key} className="flex justify-between">
@@ -93,10 +93,10 @@ export function HealthCard({
           </div>
           
           <div className="flex flex-col items-end gap-2 flex-shrink-0">
-            <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${statusText} capitalize`}>
+            <span className={`rounded-xl px-3 py-1 text-xs font-medium ${statusText} capitalize`}>
               {status}
             </span>
-            <div className="rounded-full bg-indigo-50 p-2 text-indigo-600">
+            <div className="rounded-xl bg-indigo-50 p-2 text-indigo-600">
               <TypeIcon size={16} />
             </div>
           </div>
@@ -105,7 +105,7 @@ export function HealthCard({
         {onDetailsClick && (
           <button
             onClick={onDetailsClick}
-            className="mt-4 w-full flex items-center justify-center gap-2 rounded-full bg-white/80 px-4 py-2 text-sm font-medium text-slate-700 backdrop-blur hover:bg-white transition-all border border-slate-200"
+            className="mt-4 w-full flex items-center justify-center gap-2 rounded-xl bg-white/80 px-4 py-2.5 text-sm font-medium text-slate-700 backdrop-blur hover:bg-white transition-all border border-slate-100"
           >
             {showDetails ? (
               <>

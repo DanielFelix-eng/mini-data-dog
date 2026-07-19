@@ -11,17 +11,15 @@ import {
 const ResponseTimeChart = ({ data }) => {
   if (!data || data.length === 0) {
     return (
-      <div className="bg-white rounded-xl shadow p-5 h-96 flex items-center justify-center">
-        <h2 className="text-lg font-semibold mb-4 absolute top-5 left-5">
-          Response Time
-        </h2>
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 h-96 flex items-center justify-center">
+        <h2 className="text-lg font-semibold mb-4">Response Time</h2>
         <p className="text-slate-400 text-sm">No data yet</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl shadow p-5 h-96">
+    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 h-96">
       <h2 className="text-lg font-semibold mb-4">Response Time</h2>
 
       <ResponsiveContainer width="100%" height="90%">
