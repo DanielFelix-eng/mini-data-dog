@@ -3,6 +3,7 @@ import { connectedDB } from './db/db.js'
 import dotenv from 'dotenv'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
+import path from 'path'
 import authRoute from './routes/authRoute.js'
 import ProjectRoute from './routes/projectRoutes.js'
 import MonitorRoute from './routes/monitorRoutes.js'
@@ -39,18 +40,14 @@ app.use('/api/analytics', AnalyticsRoute)
 app.get('/api/auth/debug/cookies', (req, res) => {
   res.json({ hasTokenCookie: Boolean(req.cookies?.token) })
 })
-app.use(express.static(path.join(__dirname, 'frontend', 'dist')))
 
-// 2. Explicit root route handler to directly bypass complex matching for the home page
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'dist', 'index.html'))
-})
-
-// 3. FIXED FOR EXPRESS V5: Native regular expression fallback that captures all frontend
-// routing paths safely while deliberately ignoring any backend endpoints starting with /api
-app.get(/^(?!\/api).*$/, (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'dist', 'index.html'))
-})
+// Serve static files in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(import.meta.dirname, '../client/dist')))
+  app.get('*all', (req, res) => {
+    res.sendFile(path.join(import.meta.dirname, '../client/dist/index.html'))
+  })
+}
 
 const PORT = process.env.PORT || 3000
 

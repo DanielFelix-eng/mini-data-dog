@@ -8,17 +8,18 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
    plugins: [
-    react(),
-    babel({ presets: [reactCompilerPreset()] }),
-      tailwindcss(),
-  ],
-  server: {
-    proxy: {
-      // Shorthand for simple forwarding
-      '/api': {
-        target: 'http://127.0.0.1:3000',
-        changeOrigin: true,
-      }
-    }
-  }
-})
+     react(),
+     babel({ presets: [reactCompilerPreset()] }),
+       tailwindcss(),
+   ],
+   server: {
+     proxy: {
+       // Shorthand for simple forwarding
+       '/api': {
+         target: 'http://127.0.0.1:3000',
+         changeOrigin: true,
+         cookieDomainRewrite: 'localhost',
+       }
+     }
+   }
+ })
