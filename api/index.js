@@ -18,9 +18,7 @@ const app = express()
 
 app.use(express.json())
 app.use(cookieParser())
-app.get('/', (req, res) => {
-  res.send('API is running')
-})
+
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
     ? process.env.CLIENT_URL
@@ -47,10 +45,13 @@ if (process.env.NODE_ENV === 'production') {
   app.get('*all', (req, res) => {
     res.sendFile(path.join(import.meta.dirname, '../client/dist/index.html'))
   })
+} else {
+  app.get('/', (req, res) => {
+    res.send('API is running')
+  })
 }
 
 const PORT = process.env.PORT || 3000
-
 
 const start = async () => {
   await connectedDB()
@@ -61,6 +62,3 @@ const start = async () => {
 }
 
 start()
-
-
-
