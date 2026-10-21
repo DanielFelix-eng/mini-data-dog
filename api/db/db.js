@@ -11,7 +11,11 @@ export const connectedDB = async () => {
     throw new Error('MONGO_URI is not set in environment variables')
   }
 
-  if (!connectionPromise) {
+  if (
+    !connectionPromise ||
+    mongoose.connection.readyState === 0 ||
+    mongoose.connection.readyState === 3
+  ) {
     connectionPromise = mongoose.connect(process.env.MONGO_URI)
       .then((connection) => {
         console.log(`Connected to MongoDB: ${connection.connection.host}`)

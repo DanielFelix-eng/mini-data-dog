@@ -30,7 +30,7 @@ A lightweight, self-hosted uptime monitoring tool built on the MERN stack. Track
 ## How It Works
 
 1. Users register/log in and create monitors by supplying a URL and check interval.
-2. A cron worker runs in the background, pinging each active monitor on schedule.
+2. A local cron worker or Netlify scheduled function pings each active monitor on schedule.
 3. Each check records response time, HTTP status, and up/down state to MongoDB.
 4. Status transitions (e.g. a monitor going from "up" to "down") trigger an email alert via Brevo.
 5. The dashboard visualizes historical uptime and response time data per monitor, with a settings page for tuning check behavior per monitor.
