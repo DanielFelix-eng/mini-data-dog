@@ -7,6 +7,20 @@ const expressHandler = serverless(app, {
 })
 
 export const handler = async (event, context) => {
-  await connectedDB()
+  try {
+    await connectedDB()
+  } catch (error) {
+    console.error('API function could not connect to MongoDB', {
+      name: error?.name,
+      code: error?.code,
+    })
+
+    return {
+      statusCode: 503,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: 'Database connection unavailable' }),
+    }
+  }
+
   return expressHandler(event, context)
 }
