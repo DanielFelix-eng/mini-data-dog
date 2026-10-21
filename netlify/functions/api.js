@@ -22,5 +22,16 @@ export const handler = async (event, context) => {
     }
   }
 
-  return expressHandler(event, context)
+  return expressHandler(event, context).catch((error) => {
+    console.error('Express handler error', {
+      name: error?.name,
+      message: error?.message,
+      stack: error?.stack,
+    })
+    return {
+      statusCode: 500,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: 'Internal server error' }),
+    }
+  })
 }

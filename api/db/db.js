@@ -7,7 +7,7 @@ export const connectedDB = async () => {
     return mongoose.connection
   }
 
-  const mongoUri = process.env.MONGO_URL || process.env.MONGO_URL
+  const mongoUri = process.env.MONGO_URI || process.env.MONGO_URL
   if (!mongoUri) {
     throw new Error('MONGO_URI (or legacy MONGO_URL) is not set in environment variables')
   }
