@@ -1,4 +1,3 @@
-import React from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 
@@ -12,6 +11,8 @@ import VerifyEmailPage from './pages/verifyEmail.jsx'
 import LandingPage from './landing.jsx'
 import SettingsPage from './pages/settings.jsx'
 import AnalyticsPage from './pages/analytics.jsx'
+import ForgotPasswordPage from './pages/forgotPassword.jsx'
+import ResetPasswordPage from './pages/resetPassword.jsx'
 import { SidebarProvider } from './context/SidebarContext'
 import { AuthProvider } from './components/AuthProvider'
 
@@ -71,6 +72,8 @@ export default function App() {
         <Route path="/login" element={
           <RedirectAuthenticatedUser><LoginPage /></RedirectAuthenticatedUser>
         } />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/resetPassword" element={<ResetPasswordPage />} />
         <Route path="/" element={
 
           <ProtectRoute >

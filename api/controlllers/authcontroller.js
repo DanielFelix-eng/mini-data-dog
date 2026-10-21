@@ -179,7 +179,12 @@ export const resendVerification = async (req, res) => {
                  user.resetPasswordExpire = resetTokenExpires ;
                   await user.save() ;
                    // send email
-                   await sendResetPasswordEmail(user.name, user.email, `http://localhost:5173/resetPassword?token=${token}`);
+                   const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+                   await sendResetPasswordEmail(
+                     user.name,
+                     user.email,
+                     `${clientUrl}/resetPassword?token=${encodeURIComponent(token)}`
+                   );
                    return res.status(200).json({ success: true, message: 'Password reset email sent' });
               
           } catch (error) {
@@ -189,8 +194,11 @@ export const resendVerification = async (req, res) => {
          //reset password logic 
           export const resetPassword =  async (req,res) =>{ 
             try {
-               const  { token} = req.params ; 
+              const { token } = req.params;
                 const  {password} =  req.body
+   if (!password || password.length < 6) {
+     return res.status(400).json({ success: false, message: 'Password must be at least 6 characters' });
+   }
    const user = await User.findOne({
      resetPasswordToken:token, 
      resetPasswordExpire: { $gt: Date.now() } ,
@@ -200,9 +208,8 @@ export const resendVerification = async (req, res) => {
        return res.status(400).json({ success: false, message: 'Invalid or expired token' }); 
 
     }
-     //update password 
-      const hashedPassword = await bcrypt.hash(password, 10) ;
-       user.password = hashedPassword
+     // The user model hashes modified passwords before saving.
+       user.password = password
         user.resetPasswordToken = undefined ;
           user.resetPasswordExpire = undefined ;
         await user.save()
@@ -367,4 +374,3 @@ export const deleteAccount = async (req, res) => {
     return res.status(500).json({ success: false, message: error.message })
   }
 }
-

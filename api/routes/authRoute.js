@@ -10,8 +10,8 @@ router.post('/login', login)
 router.post('/google', googleAuth)
 router.post('/verifyEmail', verifyToken, verifyEmail)
 router.post('/resendVerification', verifyToken, resendVerification)
-router.post('/forgotPassword', verifyToken, forgotPassword)
-router.post('/resetPassword', verifyToken, resetPassword)
+router.post('/forgotPassword', forgotPassword)
+router.post('/resetPassword/:token', resetPassword)
 router.get('/verifyToken', verifyToken, (req, res) => {
      res.status(200).json({ message: 'Token is valid' })
 }
@@ -19,4 +19,3 @@ router.get('/verifyToken', verifyToken, (req, res) => {
 router.get('/checkauth', verifyToken, checkauth)
 
 export default router
-

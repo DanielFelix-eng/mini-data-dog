@@ -3,10 +3,12 @@
   "scripts": {
     "dev": "nodemon api/index.js",
     "start": "node api/index.js",
-    "build": "cd  client && npm install && npm run build"
+    "build": "npm --prefix client run build",
+    "build:netlify": "npm --prefix client ci && npm --prefix client run build"
   },
   "dependencies": {
     "@getbrevo/brevo": "^5.0.4",
+    "@netlify/functions": "^3.1.10",
     "axios": "^1.18.1",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
@@ -19,6 +21,7 @@
     "node-cron": "^4.5.0",
     "nodemon": "^3.1.14",
     "recharts": "^3.9.2",
-    "script": "^0.1.4"
+    "script": "^0.1.4",
+    "serverless-http": "^3.2.0"
   }
 }

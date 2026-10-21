@@ -38,7 +38,7 @@ A lightweight, self-hosted uptime monitoring tool built on the MERN stack. Track
 ## Getting Started
 
 ### Prerequisites
-- Node.js (v18+)
+- Node.js (v22)
 - MongoDB instance (local or Atlas)
 - Brevo API key (for email alerts)
 
@@ -49,31 +49,33 @@ git clone https://github.com/<your-username>/mini-datadog.git
 cd mini-datadog
 
 # Install backend dependencies
-cd server
 npm install
 
 # Install frontend dependencies
-cd ../client
+cd client
 npm install
+
+cd ..
 ```
 
 ### Environment Variables
 
-Create a `.env` file in the `server` directory:
+For local development, create a `.env` file in the repository root:
 
 ```env
-PORT=5000
+PORT=3000
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 BREVO_API_KEY=your_brevo_api_key
-BREVO_SENDER_EMAIL=your_verified_sender_email
+EMAIL_FROM_ADDRESS=your_verified_sender_email
+CLIENT_URL=http://localhost:5173
+VITE_FIREBASE_API_KEY=your_firebase_web_api_key
 ```
 
 ### Running Locally
 
 ```bash
 # Start the backend (API + cron worker)
-cd server
 npm run dev
 
 # Start the frontend
@@ -81,7 +83,26 @@ cd client
 npm run dev
 ```
 
-The app will be available at `http://localhost:5173` (or your configured Vite port), with the API running on `http://localhost:5000`.
+The app will be available at `http://localhost:5173` (or your configured Vite port), with the API running on `http://localhost:3000`.
+
+## Deploying to Netlify
+
+The repository includes a Netlify configuration for deploying the Vite frontend and Express API together. Connect the repository to Netlify and use the detected `netlify.toml` settings, or run `npm run build:netlify` to build locally. Netlify publishes `client/dist`, forwards `/api/*` to the Express function, and runs monitor checks using a scheduled function once per minute.
+
+Set these environment variables in **Site configuration → Environment variables** before deploying:
+
+| Variable | Purpose |
+| --- | --- |
+| `MONGO_URI` | MongoDB connection string reachable by Netlify Functions |
+| `JWT_SECRET` | Secret used to sign authentication tokens |
+| `CLIENT_URL` | Deployed site origin, for example `https://your-site.netlify.app` |
+| `BREVO_API_KEY` | Brevo API key for email notifications |
+| `EMAIL_FROM_ADDRESS` | Verified sender address used by email notifications |
+| `VITE_FIREBASE_API_KEY` | Firebase web API key, available to the frontend at build time |
+
+`EMAIL_FROM` is optional and controls the sender display name. Set environment variables for the deploy contexts where the site will run, then trigger a new deploy so the frontend build can read `VITE_FIREBASE_API_KEY`. Keep private values out of frontend-prefixed (`VITE_`) variables.
+
+The scheduled function needs a Netlify plan that supports Scheduled Functions. Checks run once per minute as in local development; size the monitor workload so each invocation finishes within Netlify's function execution limit.
 
 ## Project Structure
 
