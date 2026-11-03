@@ -73,6 +73,7 @@ export default function SignupPage() {
 
       setSuccess('Account created. You can continue to login.')
       dispatch(signupSuccess({ user: data?.user, token: data?.token }))
+      if (data?.token) localStorage.setItem('token', data.token)
       navigate('/verifyEmail')
     } catch (err) {
       setError('Network error. Please try again.')

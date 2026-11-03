@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.12.0",
+    "@rolldown/pluginutils": "^1.0.0",
     "@tailwindcss/vite": "^4.3.2",
     "axios": "^1.18.1",
     "firebase": "^12.15.0",
@@ -20,6 +21,8 @@
     "react-redux": "^9.3.0",
     "react-router-dom": "^7.18.1",
     "recharts": "^3.9.2",
+    "script": "^0.1.4",
+    "scripts": "^0.1.0",
     "tailwindcss": "^4.3.2"
   },
   "devDependencies": {

@@ -3,8 +3,8 @@
   "scripts": {
     "dev": "nodemon api/index.js",
     "start": "node api/index.js",
-    "build": "npm --prefix client run build",
-    "build:netlify": "npm --prefix client ci && npm --prefix client run build"
+    "build": "npm --prefix client ci --include=dev && npm --prefix client run build",
+    "build:netlify": "npm run build"
   },
   "dependencies": {
     "@getbrevo/brevo": "^5.0.4",
