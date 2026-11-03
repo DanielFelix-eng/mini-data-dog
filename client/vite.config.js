@@ -12,6 +12,7 @@ export default defineConfig(({ mode }) => {
   const { PORT = '3000' } = loadEnv(mode, rootEnvDirectory, '')
 
   return {
+    envDir: rootEnvDirectory,
     plugins: [
       react(),
       babel({ presets: [reactCompilerPreset()] }),
