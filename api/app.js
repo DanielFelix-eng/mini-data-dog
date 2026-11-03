@@ -14,15 +14,26 @@ dotenv.config()
 
 const app = express()
 
-app.use(express.json())
-app.use(cookieParser())
+const allowedOrigins = (process.env.CLIENT_URL || (
+  process.env.NODE_ENV === 'production' ? '' : 'http://localhost:5173'
+))
+  .split(',')
+  .map((origin) => origin.trim().replace(/\/+$/, ''))
+  .filter(Boolean)
 
 app.use(cors({
-  origin: process.env.CLIENT_URL || (
-    process.env.NODE_ENV === 'production' ? false : 'http://localhost:5173'
-  ),
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin.replace(/\/+$/, ''))) {
+      return callback(null, true)
+    }
+
+    return callback(new Error(`Origin ${origin} is not allowed by CORS`))
+  },
   credentials: true
 }))
+
+app.use(express.json())
+app.use(cookieParser())
 
 app.use('/api/auth', authRoute)
 app.use('/api', ProjectRoute)

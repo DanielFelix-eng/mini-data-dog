@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 import User from '../models/User.js'
-import { generateToken } from '../utils/setCookies.js'
+import { generateToken, tokenCookieOptions } from '../utils/setCookies.js'
 import { sendVerificationEmail } from '../resend/resend.js'
 import { sendWelcomeEmail, sendResetPasswordEmail, resetPasswordEmail } from '../resend/email.js'
 export const signup = async (req, res) => {
@@ -122,7 +122,7 @@ export const resendVerification = async (req, res) => {
 };
  //logout
   export const logout = ( req,res) => {
-     res.clearCookie('token')
+     res.clearCookie('token', tokenCookieOptions)
     
     res.status(200).json({ success: true, message: 'Logged out successfully' });
     } 
@@ -367,7 +367,7 @@ export const deleteAccount = async (req, res) => {
     }
 
     await User.findByIdAndDelete(userId)
-    res.clearCookie('token')
+    res.clearCookie('token', tokenCookieOptions)
 
     return res.status(200).json({ success: true, message: 'Account deleted successfully' })
   } catch (error) {
