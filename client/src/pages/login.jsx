@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { Eye, EyeOff, Loader2, Mail, Lock, BarChart3, CheckCircle, AlertCircle } from 'lucide-react'
 
+import { api } from '../lib/axios'
 import Oauth from '../components/googleAuth'
 import { loginFailure, loginSuccess } from '../slices/authSlice'
 
@@ -32,18 +33,7 @@ export default function LoginPage() {
 
     setSubmitting(true)
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ email, password }),
-      })
-
-      const data = await res.json().catch(() => null)
-      if (!res.ok) {
-        setError(data?.message || 'Login failed')
-        return
-      }
+      const { data } = await api.post('/auth/login', { email, password })
 
       dispatch(loginSuccess({ user: data?.user, token: data?.token }))
 
@@ -51,7 +41,7 @@ export default function LoginPage() {
       navigate('/')
     } catch (err) {
       console.error(err)
-      setError('Network error. Please try again.')
+      setError(err.response?.data?.message || (err.response ? 'Login failed' : 'Network error. Please try again.'))
       dispatch(loginFailure(err?.message || 'Network error'))
     } finally {
       setSubmitting(false)
