@@ -1,3 +1,6 @@
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import dotenv from 'dotenv'
 import express from 'express'
 import cors from 'cors'
@@ -13,6 +16,8 @@ import AnalyticsRoute from './routes/analyticsRoutes.js'
 dotenv.config()
 
 const app = express()
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const clientDistPath = path.resolve(__dirname, '../client/dist')
 
 const allowedOrigins = (process.env.CLIENT_URL || (
   process.env.NODE_ENV === 'production' ? '' : 'http://localhost:5173'
@@ -47,8 +52,16 @@ app.get('/api/auth/debug/cookies', (req, res) => {
   res.json({ hasTokenCookie: Boolean(req.cookies?.token) })
 })
 
-app.get('/', (req, res) => {
-  res.send('API is running')
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok' })
 })
+
+if (fs.existsSync(clientDistPath)) {
+  app.use(express.static(clientDistPath))
+
+  app.get(/^(?!\/api).*$/, (req, res) => {
+    res.sendFile(path.join(clientDistPath, 'index.html'))
+  })
+}
 
 export default app

@@ -104,6 +104,58 @@ Set these environment variables in **Site configuration → Environment variable
 
 The scheduled function needs a Netlify plan that supports Scheduled Functions. Checks run once per minute as in local development; size the monitor workload so each invocation finishes within Netlify's function execution limit.
 
+## Deploying to Suga
+
+Suga works best with a single containerized service for this app: the Express backend starts on port `3000`, builds the React frontend, and serves the generated `client/dist` files at the root URL while keeping `/api/*` endpoints available.
+
+### Files to use
+
+- `Dockerfile` at the repository root
+- `.dockerignore` to keep the image small
+- `api/app.js` serves the built frontend and keeps the API routes active
+
+### Example environment variables for Suga
+
+```env
+PORT=3000
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+CLIENT_URL=https://your-suga-url
+BREVO_API_KEY=your_brevo_api_key
+EMAIL_FROM_ADDRESS=your_verified_sender_email
+VITE_FIREBASE_API_KEY=your_firebase_web_api_key
+```
+
+### Docker build
+
+```dockerfile
+FROM node:22-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+RUN npm --prefix client install
+RUN npm --prefix client run build
+
+EXPOSE 3000
+
+CMD ["npm", "start"]
+```
+
+### Deployment flow
+
+1. Connect your GitHub repository in Suga.
+2. Add the app as a single service.
+3. Set the exposed port to `3000`.
+4. Add the environment variables above.
+5. Deploy.
+
+The app will serve the frontend on `/` and the backend on `/api/*` from the same domain.
+
 ## Project Structure
 
 ```
